@@ -1,0 +1,10 @@
+{
+  "id": "codex",
+  "label": "Codex CLI",
+  "compatibleProtocols": ["openai_responses"],
+  "headers": {
+    "originator": "codex_cli_rs",
+    "user-agent": "codex_cli_rs/0.50.0 (Windows 10.0.28000; x86_64) unknown"
+  },
+  "query": {}
+}

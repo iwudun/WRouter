@@ -1,0 +1,19 @@
+{
+  "case_id": "anthropic-native-stream-tool-use",
+  "spec_ref": "20261012_01 §1.4 流式 relay · anthropic × anthropic",
+  "captured_at": "2026-11-07T02:33:17",
+  "requests": [
+    {
+      "method": "POST",
+      "upstream": "anthropic-native-stream-tool-use",
+      "path": "/anthropic-native-stream-tool-use/v1/messages",
+      "content_type": "application/json",
+      "headers": {
+        "accept": "*/*"
+      },
+      "body_bytes": 99,
+      "body_sha256": "ede80230d60fde0447fac07fc152a2af5fdbc04008e13085cb3e9a13a9ef111c",
+      "body": "{\"model\":\"m-golden\",\"max_tokens\":256,\"messages\":[{\"role\":\"user\",\"content\":\"Say hi\"}],\"stream\":true}"
+    }
+  ]
+}

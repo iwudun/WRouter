@@ -1,0 +1,19 @@
+{
+  "case_id": "upstream-401",
+  "spec_ref": "03-网关协议与路由 §4 三层重试与回退 · 上游 401 改写",
+  "captured_at": "2026-11-05T14:02:14",
+  "requests": [
+    {
+      "method": "POST",
+      "upstream": "upstream-401",
+      "path": "/upstream-401/v1/chat/completions",
+      "content_type": "application/json",
+      "headers": {
+        "accept": "*/*"
+      },
+      "body_bytes": 68,
+      "body_sha256": "60e04a5e6a57bdccdaa8dbd20613f54c4d1681f8949e3fa763abddf63136510d",
+      "body": "{\"model\":\"m-golden\",\"messages\":[{\"role\":\"user\",\"content\":\"Say hi\"}]}"
+    }
+  ]
+}

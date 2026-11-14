@@ -1,0 +1,15 @@
+{
+  "method": "POST",
+  "path": "/v1/chat/completions",
+  "headers": {},
+  "body": {
+    "model": "prov-thinking-gemini3-thinking-level/gemini-3-flash-golden",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Say hi"
+      }
+    ],
+    "reasoning_effort": "medium"
+  }
+}

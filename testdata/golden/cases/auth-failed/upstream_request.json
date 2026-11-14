@@ -1,0 +1,6 @@
+{
+  "case_id": "auth-failed",
+  "spec_ref": "03-网关协议与路由 §1 网关端点 · 客户端密钥校验(401)",
+  "captured_at": "2026-11-05T14:01:53",
+  "requests": []
+}

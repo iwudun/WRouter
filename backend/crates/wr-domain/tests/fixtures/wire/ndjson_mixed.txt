@@ -1,0 +1,4 @@
+{"a":1}
+
+{"tools":[{"name":"x","args":{"model":"business"}}]}
+[DONE]

@@ -1,0 +1,19 @@
+{
+  "case_id": "openai-chat-stream-text",
+  "spec_ref": "20261012_01 §1.4 流式 relay · openai × openai",
+  "captured_at": "2026-11-05T14:01:45",
+  "requests": [
+    {
+      "method": "POST",
+      "upstream": "openai-chat-stream-text",
+      "path": "/openai-chat-stream-text/v1/chat/completions",
+      "content_type": "application/json",
+      "headers": {
+        "accept": "*/*"
+      },
+      "body_bytes": 82,
+      "body_sha256": "acfe66f4bad6861b73160ac683116b79aa7513f43d66baa6121af86a2d4e8d9b",
+      "body": "{\"model\":\"m-golden\",\"messages\":[{\"role\":\"user\",\"content\":\"Say hi\"}],\"stream\":true}"
+    }
+  ]
+}

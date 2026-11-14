@@ -1,0 +1,7 @@
+{
+  "error": {
+    "message": "Unsupported provider protocol: openai_responses",
+    "type": "wrouter_error",
+    "request_id": "65c21cc4-5d1b-4199-88a8-4b15ac896cdb"
+  }
+}

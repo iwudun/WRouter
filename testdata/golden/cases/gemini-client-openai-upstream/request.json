@@ -1,0 +1,18 @@
+{
+  "method": "POST",
+  "path": "/v1beta/models/prov-gemini-client-openai-upstream/m-golden:generateContent",
+  "headers": {},
+  "body": {
+    "model": "prov-gemini-client-openai-upstream/m-golden",
+    "contents": [
+      {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Say hi"
+          }
+        ]
+      }
+    ]
+  }
+}

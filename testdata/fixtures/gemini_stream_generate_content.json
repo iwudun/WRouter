@@ -1,0 +1,11 @@
+{
+  "client_protocol": "openai",
+  "upstream_protocol": "gemini",
+  "upstream_sse": [
+    "data: {\"candidates\":[{\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\"你\"}]}}]}\n",
+    "data: {\"candidates\":[{\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\"好\"}]}}]}\n",
+    "data: {\"candidates\":[{\"finishReason\":\"STOP\"}],\"usageMetadata\":{\"promptTokenCount\":10,\"candidatesTokenCount\":2,\"totalTokenCount\":12}}\n"
+  ],
+  "expected_text": "你好",
+  "expected_usage": {"input_tokens": 10, "output_tokens": 2, "total_tokens": 12}
+}

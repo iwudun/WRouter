@@ -1,0 +1,21 @@
+{
+  "description": "Anthropic Messages upstream stream rendered as OpenAI Responses client events. Verifies the Responses relay emits response.created/in_progress, output_item.added, function_call_arguments.delta/done, output_item.done and response.completed with usage.",
+  "client_protocol": "openai_responses",
+  "upstream_protocol": "anthropic",
+  "upstream_sse": [
+    "event: message_start\ndata: {\"type\":\"message_start\",\"message\":{\"id\":\"msg_1\",\"model\":\"claude-m\",\"content\":[],\"usage\":{\"input_tokens\":5}}}",
+    "event: content_block_delta\ndata: {\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"text_delta\",\"text\":\"hi\"}}",
+    "event: message_delta\ndata: {\"type\":\"message_delta\",\"delta\":{\"stop_reason\":\"end_turn\"},\"usage\":{\"output_tokens\":2}}",
+    "event: message_stop\ndata: {\"type\":\"message_stop\"}"
+  ],
+  "expected_event_types": [
+    "response.created",
+    "response.in_progress",
+    "response.output_item.added",
+    "response.content_part.added",
+    "response.output_text.delta",
+    "response.completed"
+  ],
+  "expected_text": "hi",
+  "expected_usage": {"input_tokens": 5, "output_tokens": 2, "total_tokens": 7}
+}

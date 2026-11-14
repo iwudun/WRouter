@@ -1,0 +1,26 @@
+{
+  "name": "wrouter-desktop",
+  "version": "0.2.5",
+  "private": true,
+  "description": "WRouter Tauri v2 desktop shell",
+  "author": "WRouter",
+  "license": "MIT",
+  "homepage": "https://github.com/iwudun/WRouter",
+  "scripts": {
+    "setup": "node scripts/setup-dev.mjs",
+    "dev": "node scripts/dev.mjs",
+    "dev:tauri": "node scripts/dev.mjs",
+    "tauri:build": "node scripts/build-desktop.mjs",
+    "dev:fe": "npm --prefix frontend run dev",
+    "build:fe": "npm --prefix frontend run build",
+    "build:icons": "node packaging/build-icons.mjs",
+    "build:info": "node scripts/generate-build-info.mjs",
+    "version:sync": "node scripts/sync-version.mjs",
+    "version:check": "node scripts/sync-version.mjs --check",
+    "build:win": "node scripts/build.mjs --win",
+    "build:win:sign": "node scripts/build.mjs --win --sign",
+    "build:rpm": "node scripts/build.mjs --rpm",
+    "build:linux": "node scripts/build.mjs --linux",
+    "build:all": "node scripts/build.mjs --win --linux"
+  }
+}

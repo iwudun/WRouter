@@ -1,0 +1,7 @@
+# 方案 #14 R1.7: 锁定工具链版本保证产物可复现。
+# rustup 会在进入本目录时自动安装并切换到该版本。
+# zig 与 cargo-zigbuild 版本在 backend/README.md 中另行约定(无法由本文件锁定)。
+[toolchain]
+channel = "1.98.0"
+profile = "minimal"
+components = ["clippy", "rustfmt"]

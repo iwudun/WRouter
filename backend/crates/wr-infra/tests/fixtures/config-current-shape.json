@@ -1,0 +1,44 @@
+{
+  "version": 2,
+  "preferredProvider": "deepseek",
+  "Providers": [
+    {
+      "id": "deepseek",
+      "name": "DeepSeek",
+      "api_base_url": "https://api.deepseek.com",
+      "protocol": "openai",
+      "models": ["deepseek-chat", "deepseek-reasoner"],
+      "api_key": "sk-demo-masked",
+      "enabled": true,
+      "transformer": null
+    }
+  ],
+  "APIKEYS": [
+    { "key": "sk-client-1", "name": "本机", "enabled": true }
+  ],
+  "routingRules": [
+    { "match": "claude-*", "provider": "deepseek", "model": "deepseek-chat" }
+  ],
+  "policies": {
+    "enabled": true,
+    "defaultEffect": "allow",
+    "rules": []
+  },
+  "reliability": {
+    "circuit_breaker": { "enabled": true, "failure_threshold": 3, "cooldown_ms": 30000, "failure_status_codes": [408, 429, 500, 502, 503, 504] },
+    "concurrency": { "enabled": true, "max_in_flight_per_provider": 8, "queue_timeout_ms": 0 },
+    "idempotency": { "enabled": true, "ttl_ms": 300000, "max_entries": 1000, "header_name": "idempotency-key", "cache_error_responses": false },
+    "health": { "enabled": true, "initial_delay_ms": 5000, "interval_ms": 30000, "timeout_ms": 5000 },
+    "precheck": { "enabled": false, "rate_limit_rules": [], "budget_max_cost_usd": 0.0 },
+    "metrics": { "enabled": true, "include_provider_health": true }
+  },
+  "theme": "dark",
+  "proxy": { "mode": "system" },
+  "observability": { "callLogs": true, "captureBodies": false, "bodyRetentionDays": 7 },
+  "Router": {
+    "rules": [
+      { "match": "claude-*", "provider": "deepseek", "model": "deepseek-chat" }
+    ],
+    "fallback": { "provider": "deepseek" }
+  }
+}

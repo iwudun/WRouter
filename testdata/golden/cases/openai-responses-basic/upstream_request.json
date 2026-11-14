@@ -1,0 +1,19 @@
+{
+  "case_id": "openai-responses-basic",
+  "spec_ref": "20261012_01 §1.2 请求侧 · openai_responses × openai",
+  "captured_at": "2026-11-05T14:02:00",
+  "requests": [
+    {
+      "method": "POST",
+      "upstream": "openai-responses-basic",
+      "path": "/openai-responses-basic/v1/chat/completions",
+      "content_type": "application/json",
+      "headers": {
+        "accept": "*/*"
+      },
+      "body_bytes": 86,
+      "body_sha256": "60cc089b9acada8d76fa2887796d2d1387f8ddf9b16eb76683066046daa89aa4",
+      "body": "{\"model\":\"m-golden\",\"messages\":[{\"role\":\"user\",\"content\":\"Say hi\"}],\"max_tokens\":4096}"
+    }
+  ]
+}

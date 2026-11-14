@@ -1,0 +1,7 @@
+{
+  "error": {
+    "message": "bad upstream key",
+    "type": "upstream_error",
+    "code": "401"
+  }
+}

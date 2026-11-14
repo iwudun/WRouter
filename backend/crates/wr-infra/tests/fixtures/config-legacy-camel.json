@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "preferredProvider": "legacy-provider",
+  "providers": [
+    {
+      "name": "Legacy",
+      "baseUrl": "https://legacy.example.com",
+      "apiKey": "sk-legacy",
+      "icon": "rocket"
+    }
+  ],
+  "API_KEYS": [
+    { "key": "sk-old", "name": "old" }
+  ],
+  "routingRules": [
+    { "match": "gpt-*", "provider": "legacy-provider" }
+  ],
+  "routerFallback": { "provider": "legacy-provider" },
+  "themePreference": "light"
+}

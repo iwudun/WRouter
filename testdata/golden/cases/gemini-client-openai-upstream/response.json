@@ -1,0 +1,22 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "role": "model",
+        "parts": [
+          {
+            "text": "hello from upstream"
+          }
+        ]
+      },
+      "finishReason": "STOP"
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 3,
+    "candidatesTokenCount": 5,
+    "totalTokenCount": 8
+  },
+  "modelVersion": "m-golden",
+  "responseId": "up-ok"
+}

@@ -1,0 +1,21 @@
+{
+  "id": "up-ok",
+  "object": "chat.completion",
+  "created": 1,
+  "model": "m-golden",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "hello from upstream"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 3,
+    "completion_tokens": 5,
+    "total_tokens": 8
+  }
+}

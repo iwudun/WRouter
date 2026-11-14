@@ -1,0 +1,32 @@
+{
+  "method": "POST",
+  "path": "/v1/chat/completions",
+  "headers": {},
+  "body": {
+    "model": "prov-thinking-openai-to-anthropic/m-golden",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Say hi"
+      }
+    ],
+    "reasoning_effort": "high",
+    "temperature": 0.5,
+    "top_p": 0.9,
+    "max_tokens": 2048,
+    "parallel_tool_calls": false,
+    "tool_choice": "auto",
+    "tools": [
+      {
+        "type": "function",
+        "function": {
+          "name": "mcp.demo.tool",
+          "description": "d",
+          "parameters": {
+            "type": "object"
+          }
+        }
+      }
+    ]
+  }
+}

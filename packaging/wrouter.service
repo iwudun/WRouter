@@ -1,0 +1,31 @@
+[Unit]
+Description=WRouter Gateway
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+# 20261102_01 P2-1:Linux 交付改为纯后端(无 Electron 桌面壳)。
+# 单二进制安装到 /usr/bin/,管理面同时托管前端 SPA(D5: 保持 127.0.0.1,
+# 只监听回环,避免把管理面暴露到局域网)。
+ExecStart=/usr/bin/wr-backend serve --host 127.0.0.1 --data-dir %h/.wrouter --serve-ui
+Restart=on-failure
+RestartSec=3
+Environment=WROUTER_GATEWAY_PORT=3460
+Environment=WROUTER_WEB_PORT=3462
+# 管理面同时托管前端 SPA (20261102_01 P1-5;--serve-ui 亦置位同一开关)
+Environment=WROUTER_SERVE_UI=1
+# 前端 SPA 静态资源目录(rpm 安装到 /usr/share/wrouter/frontend)
+Environment=WROUTER_FRONTEND_DIR=/usr/share/wrouter/frontend
+# capabilities 契约文件(rpm 安装到 /usr/share/wrouter/contracts);
+# 缺失时后端降级到内联默认值,不会启动失败。
+Environment=WROUTER_CAPABILITIES_FILE=/usr/share/wrouter/contracts/wrouter-capabilities.json
+# 20261102_01 P6:显式声明托管方式 → 管理面页面据此把「退出」呈现为
+# 「停止服务」,并给出 systemctl --user start 的重启指引
+# (不依赖 INVOCATION_ID 探测,user 单元下更确定)。
+Environment=WROUTER_MANAGED_BY=systemd
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=default.target

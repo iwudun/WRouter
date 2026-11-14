@@ -1,0 +1,6 @@
+data: {"id":"c1","object":"chat.completion.chunk","created":1,"model":"ox-alpha-free","choices":[{"index":0,"delta":{"role":"assistant","reasoning_content":"The user asks me to retry."},"finish_reason":null}]}
+data: {"id":"c1","object":"chat.completion.chunk","created":1,"model":"ox-alpha-free","choices":[{"index":0,"delta":{"role":"assistant","tool_calls":[{"index":0,"id":"call_bash","type":"function","function":{"name":"Bash","arguments":"{\""}}]},"finish_reason":null}]}
+data: {"id":"c1","object":"chat.completion.chunk","created":1,"model":"ox-alpha-free","choices":[{"index":0,"delta":{"tool_calls":[{"index":0,"function":{"arguments":"command\":\"grep -rniE \\\"retry|retries\\\" backend/src/wrouter --include=\\\"*.py\\\" -l\","}}]},"finish_reason":null}]}
+data: {"id":"c1","object":"chat.completion.chunk","created":1,"model":"ox-alpha-free","choices":[{"index":0,"delta":{"tool_calls":[{"index":0,"function":{"arguments":"\"description\":\"搜索 retry 相关文件\"}"}}]},"finish_reason":null}]}
+data: {"id":"c1","object":"chat.completion.chunk","created":1,"model":"ox-alpha-free","choices":[{"index":0,"delta":{},"finish_reason":"tool_calls"}]}
+data: [DONE]

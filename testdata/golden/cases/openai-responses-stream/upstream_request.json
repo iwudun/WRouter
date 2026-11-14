@@ -1,0 +1,19 @@
+{
+  "case_id": "openai-responses-stream",
+  "spec_ref": "20261012_01 §1.4 流式 relay · openai_responses × anthropic",
+  "captured_at": "2026-11-05T14:02:04",
+  "requests": [
+    {
+      "method": "POST",
+      "upstream": "openai-responses-stream",
+      "path": "/openai-responses-stream/v1/messages",
+      "content_type": "application/json",
+      "headers": {
+        "accept": "*/*"
+      },
+      "body_bytes": 125,
+      "body_sha256": "41a6bf0e83459fa2cd12450aa784c05b7291b4bb0f29ef7c41c6eff5a52e7ad5",
+      "body": "{\"model\":\"m-golden\",\"messages\":[{\"role\":\"user\",\"content\":[{\"type\":\"text\",\"text\":\"Say hi\"}]}],\"max_tokens\":4096,\"stream\":true}"
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "version": "3",
+  "preferred_provider": 5,
+  "Providers": [
+    { "name": "messy", "api_base_url": "https://m", "enabled": 0 },
+    { "name": "truthy", "api_base_url": "https://t", "enabled": "false" }
+  ],
+  "theme": 7,
+  "observability": { "callLogs": 1 }
+}

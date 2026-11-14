@@ -1,0 +1,368 @@
+version: 1
+entries:
+
+  # ── Normalized fields (handled by comparator) ────────────────────
+
+  - fixture_id: "*"
+    field_path: "created_at"
+    reason: "Timestamp captured at different moments (Python time.time vs Node Date.now/1000)"
+    migration: "Automatically normalized to <TIMESTAMP>"
+    status: permanent
+
+  - fixture_id: "*"
+    field_path: "created"
+    reason: "Timestamp differs (Python generates current time, Node may use upstream value)"
+    migration: "Automatically normalized to <TIMESTAMP>"
+    status: permanent
+
+  - fixture_id: "*"
+    field_path: "id"
+    reason: "UUID generation differs (Node randomUUID vs Python uuid4)"
+    migration: "Automatically normalized to <ID>/<UUID>"
+    status: permanent
+
+  - fixture_id: "*"
+    field_path: "model"
+    reason: "Model name differs (Python uses upstream model name, Node may use 'unknown' or provider model)"
+    migration: "Automatically normalized to <MODEL>"
+    status: permanent
+
+  # ── Structural: OpenAI Chat streaming event count ────────────────
+
+  - fixture_id: "contract_chat_stream_text"
+    field_path: "event_count"
+    reason: "Python emits 7 events, Node emits 6. Python includes a role-only initial chunk and a usage+stop combined chunk; Node combines these differently."
+    migration: "Python sends an extra initial delta with role=assistant, and combines usage with the stop chunk as a separate event vs Node's approach."
+    status: tracked
+
+  - fixture_id: "contract_chat_stream_usage"
+    field_path: "event_count"
+    reason: "Python emits 6 events, Node emits 5. Same root cause as chat_stream_text."
+    migration: "Python adds initial role chunk."
+    status: tracked
+
+  - fixture_id: "contract_chat_stream_multi_tool"
+    field_path: "event_count"
+    reason: "Python emits 8 events, Node emits 7. Python includes an additional initial event with content=null and role=assistant."
+    migration: "Python adds initial assistant role chunk."
+    status: tracked
+
+  - fixture_id: "contract_anthropic_stream_tool_use"
+    field_path: "event_count"
+    reason: "Python emits 6 events, Node emits 5. Python adds an initial event with finish_reason=null."
+    migration: "Python emits an extra initial chunk when converting Anthropic tool_use to OpenAI Chat."
+    status: tracked
+
+  - fixture_id: "contract_anthropic_thinking_stream"
+    field_path: "event_count"
+    reason: "Python emits 7 events, Node emits 6. Python adds extra initial events."
+    migration: "Python emits additional initialization chunks."
+    status: tracked
+
+  # ── Structural: OpenAI Chat streaming field differences ─────────
+
+  - fixture_id: "contract_chat_stream_text"
+    field_path: "Event[5].data"
+    reason: "Python sends usage+delta+finish_reason as a data chunk; Node sends data: [DONE] as the last frame. The Python chunk has meaningful JSON data while Node's is a sentinel."
+    migration: "Python combines usage and finish in one SSE data frame before [DONE]; Node sends [DONE] as the final frame after the usage chunk."
+    status: tracked
+
+  - fixture_id: "contract_chat_stream_usage"
+    field_path: "Event[4].data"
+    reason: "Same as chat_stream_text: Python sends data: {usage+delta+stop} as penultimate frame, Node sends [DONE] as final frame."
+    migration: "Same root cause as above."
+    status: tracked
+
+  # ── Structural: Anthropic-to-OpenAI initial chunk diff ──────────
+
+  - fixture_id: "contract_anthropic_stream_tool_use"
+    field_path: "Event[0].data.choices[0].finish_reason"
+    reason: "Python sends first chunk with finish_reason=null, Node does not include a preceding null-finish chunk."
+    migration: "Python adds an initial event with finish_reason=null that Node does not emit."
+    status: tracked
+
+  - fixture_id: "contract_anthropic_thinking_stream"
+    field_path: "Event[0].data.choices[0].finish_reason"
+    reason: "Same as above: Python emits initial null-finish chunk."
+    migration: "Same root cause."
+    status: tracked
+
+  # ── Structural: Non-stream finish_reason mapping ────────────────
+
+  - fixture_id: "contract_nonstream_anthropic_text"
+    field_path: "choices[0].finish_reason"
+    reason: "Python preserves Anthropic 'end_turn', Node maps to OpenAI 'stop'."
+    migration: "Python maps Anthropic stop_reason=end_turn to 'end_turn' in OpenAI format; Node maps to 'stop'. Align Python mapping to use 'stop'."
+    status: tracked
+
+  - fixture_id: "contract_nonstream_responses"
+    field_path: "finish_reason"
+    reason: "Python Responses non-stream decode uses stop_reason from upstream; Node uses OpenAI format 'stop'."
+    migration: "Same mapping difference as nonstream_anthropic."
+    status: tracked
+
+  # ── Structural: Responses lifecycle compression ─────────────────
+
+  - fixture_id: "contract_responses_stream_text"
+    field_path: "event_count"
+    reason: "Python emits 10 events (full lifecycle: created → in_progress → output_item.added → content_part.added → text.delta → text.done → content_part.done → output_item.done → completed → [DONE]); Node emits 3 events (created → in_progress → completed). Node compresses the lifecycle when converting from Anthropic."
+    migration: "Node's Anthropic-to-Responses conversion uses an optimistic path that outputs only 3 events. Python follows full OpenAI Responses spec with per-item lifecycle."
+    status: tracked
+
+  - fixture_id: "contract_responses_stream_reasoning"
+    field_path: "event_count"
+    reason: "Python 18 events vs Node 3. Same lifecycle compression."
+    migration: "Same root cause."
+    status: tracked
+
+  - fixture_id: "contract_responses_stream_function_call"
+    field_path: "event_count"
+    reason: "Python 14 events vs Node 3. Same lifecycle compression."
+    migration: "Same root cause."
+    status: tracked
+
+  - fixture_id: "contract_responses_stream_multi_fc"
+    field_path: "event_count"
+    reason: "Python 12 events vs Node 3. Same lifecycle compression."
+    migration: "Same root cause."
+    status: tracked
+
+  - fixture_id: "contract_responses_stream_max_tokens"
+    field_path: "event_count"
+    reason: "Python 10 events vs Node 3. Same lifecycle compression."
+    migration: "Same root cause."
+    status: tracked
+
+  - fixture_id: "contract_responses_stream_cached"
+    field_path: "event_count"
+    reason: "Python 10 events vs Node 3. Same lifecycle compression."
+    migration: "Same root cause."
+    status: tracked
+
+  - fixture_id: "contract_responses_stream_incomplete"
+    field_path: "event_count"
+    reason: "Python 12 events vs Node 11. Python adds sequence_number and created_at per P4 feature that Node passthrough doesn't inject."
+    migration: "Python's Responses relay injects sequence_number and created_at on every frame (P4 baseline alignment). Node passthrough for upstream Responses does not modify frames."
+    status: tracked
+
+  - fixture_id: "contract_responses_stream_incomplete"
+    field_path: "sequence_number"
+    reason: "Python injects sequence_number (monotonic per-frame counter); Node passthrough does not add it."
+    migration: "Python's OpenAIResponsesRelay adds sequence_number per P4 baseline alignment."
+    status: tracked
+
+  # ── Structural: Error handling format ───────────────────────────
+
+  - fixture_id: "contract_error_401"
+    field_path: "error.message"
+    reason: "Python returns upstream error message directly ('Incorrect API key'); Node wraps with 'All target providers failed.' and includes attempt details."
+    migration: "Python returns upstream error fields (message, type, code) as-is. Node wraps errors in a 'target providers failed' envelope with attempt metadata."
+    status: tracked
+
+  - fixture_id: "contract_error_429"
+    field_path: "error.message"
+    reason: "Same structural difference: Python direct, Node wrapped."
+    migration: "Same root cause."
+    status: tracked
+
+  - fixture_id: "contract_error_500"
+    field_path: "error.message"
+    reason: "Same structural difference: Python direct, Node wrapped."
+    migration: "Same root cause."
+    status: tracked
+
+  - fixture_id: "*"
+    field_path: "error.attempts"
+    reason: "Node includes attempts array with provider, stage, status, and details; Python does not include attempt metadata."
+    migration: "Node logs each upstream attempt; Python returns the final error without attempt history."
+    status: tracked
+
+  - fixture_id: "*"
+    field_path: "error.code"
+    reason: "Node does not preserve upstream error.code in the error envelope; Python passes error.code through."
+    migration: "Python returns error.code from upstream; Node's error envelope does not include the code field."
+    status: tracked
+
+  - fixture_id: "*"
+    field_path: "error.type"
+    reason: "Python returns upstream error.type (e.g., invalid_request_error); Node's error envelope does not include a type field."
+    migration: "Python passes error.type through from upstream; Node's error format omits it."
+    status: tracked
+
+  - fixture_id: "*"
+    field_path: "error.target_providers"
+    reason: "Node includes target_providers list in error envelope; Python does not."
+    migration: "Node error format includes target_providers metadata."
+    status: tracked
+
+  - fixture_id: "*"
+    field_path: "error.target_provider_names"
+    reason: "Node includes target_provider_names list in error envelope; Python does not."
+    migration: "Node error format includes target_provider_names metadata."
+    status: tracked
+
+  # ── Structural: Gemini conversion path ──────────────────────────
+
+  - fixture_id: "contract_gemini_stream_text"
+    field_path: "event_count"
+    reason: "Python emits 1 event (converted to OpenAI Chat format with choices[0].delta); Node emits 2 events (Gemini-format SSE with candidates)."
+    migration: "Python's GeminiRelay converts Gemini SSE to OpenAI Chat format; Node passes through Gemini format for streamGenerateContent endpoint."
+    status: tracked
+
+  - fixture_id: "contract_gemini_stream_multi_tool"
+    field_path: "event_count"
+    reason: "Python emits 1 event (OpenAI Chat format), Node emits 2 (Gemini format with functionCall)."
+    migration: "Same conversion path difference."
+    status: tracked
+
+  - fixture_id: "*"
+    field_path: "data.candidates"
+    reason: "Python converts Gemini candidates to OpenAI Chat choices format; Node keeps Gemini candidates format."
+    migration: "Python's GeminiRelay converts to OpenAI Chat format."
+    status: tracked
+
+  - fixture_id: "*"
+    field_path: "data.choices"
+    reason: "Python outputs choices[] (OpenAI Chat format); Node outputs candidates[] (Gemini format)."
+    migration: "Same as above."
+    status: tracked
+
+  # ── Structural: Gemini functionCall id format ───────────────────
+
+  - fixture_id: "*"
+    field_path: "data.functionCall.id"
+    reason: "Python assigns 'call_0' as functionCall id; Node does not assign an id."
+    migration: "Python adds synthetic id to functionCall blocks."
+    status: tracked
+
+  - fixture_id: "*"
+    field_path: "data.finishReason"
+    reason: "Python converts Gemini finishReason to OpenAI finish_reason field; Node keeps Gemini finishReason."
+    migration: "Python converts to OpenAI Chat format; Node outputs Gemini format."
+    status: tracked
+
+  - fixture_id: "*"
+    field_path: "data.safetyRatings"
+    reason: "Python strips safetyRatings when converting to OpenAI format; Node passes through Gemini safetyRatings."
+    migration: "Python's Gemini-to-OpenAI conversion doesn't include safetyRatings."
+    status: tracked
+
+  # ── Structural: OpenAI Chat streaming field diffs ───────────────
+
+  - fixture_id: "*"
+    field_path: "data.choices[0].delta.role"
+    reason: "Python includes role='assistant' in first delta event; Node does not emit a role-only event."
+    migration: "Python adds initial role event for OpenAI Chat streaming; Node skips it."
+    status: tracked
+
+  - fixture_id: "*"
+    field_path: "data.choices[0].delta.content"
+    reason: "Python's first event has content='' (empty string); Node's first event has content=null or omits the empty first chunk."
+    migration: "Python emits an empty content chunk; Node starts with the first non-empty content or uses null."
+    status: tracked
+
+  - fixture_id: "*"
+    field_path: "data.choices[0].finish_reason"
+    reason: "Python includes finish_reason=null in intermediate events; Node does not include finish_reason until the final event."
+    migration: "Python adds finish_reason=null to each streaming chunk; Node only includes it in the terminal chunk."
+    status: tracked
+
+  - fixture_id: "contract_chat_stream_multi_tool"
+    field_path: "Event[6].data"
+    reason: "Python sends usage+finish_reason as penultimate event; Node sends only the [DONE] sentinel as final event."
+    migration: "Python sends a usage+stop chunk before [DONE]; Node's last event is [DONE]."
+    status: tracked
+
+  - fixture_id: "contract_anthropic_stream_tool_use"
+    field_path: "data.choices[0].delta.tool_calls[0].function.name"
+    reason: "Python's first tool_call chunk has function.name='' or <missing>; Node has the name in the first chunk."
+    migration: "Python defers the function name to a later chunk; Node includes it in the first chunk."
+    status: tracked
+
+  # ── Structural: Responses lifecycle field-level diffs ───────────
+
+  - fixture_id: "*"
+    field_path: "data.response.output_text"
+    reason: "Python includes output_text in response.created event (per P4 implementation); Node does not include output_text in the compressed 3-event lifecycle."
+    migration: "P4 Python implementation includes output_text in response.created; Node's optimistic path excludes it from early events."
+    status: tracked
+
+  - fixture_id: "*"
+    field_path: "data.response.usage"
+    reason: "Python includes usage with cumulative count in response.created (input_tokens only); Node does not include usage until response.completed."
+    migration: "Python's P4 relay includes early usage snapshot; Node only shows usage at completion."
+    status: tracked
+
+  - fixture_id: "*"
+    field_path: "data.response.created_at"
+    reason: "Python injects created_at on every frame (P4 baseline alignment); Node passthrough does not modify upstream frames."
+    migration: "Python's OpenAIResponsesRelay injects created_at; Node does not add metadata in passthrough mode."
+    status: tracked
+
+  - fixture_id: "*"
+    field_path: "data.sequence_number"
+    reason: "Python injects sequence_number on each frame; Node passthrough does not."
+    migration: "Same root cause."
+    status: tracked
+
+  - fixture_id: "*"
+    field_path: "data.response.status_details"
+    reason: "Python includes status_details=null in response events; Node does not include status_details field."
+    migration: "Python adds status_details: null; Node omits it."
+    status: tracked
+
+  - fixture_id: "*"
+    field_path: "data.response.incomplete_details"
+    reason: "Python includes incomplete_details=null in response created/in_progress events; Node only includes incomplete_details in response.completed."
+    migration: "Python adds incomplete_details: null early; Node defers to final event."
+    status: tracked
+
+  # ── Structural: Responses lifecycle event type compression ──────
+
+  - fixture_id: "*"
+    field_path: "Event"
+    reason: "Python emits full Responses lifecycle (created→in_progress→output_item.added→...→completed→[DONE]); Node compresses to 3 events (created→in_progress→completed). This causes cascading event-level diffs."
+    migration: "Node's Anthropic-to-Responses path uses an optimistic compression strategy. Python follows the full spec lifecycle. This is the single largest structural difference between the two implementations."
+    status: tracked
+
+  # ── Structural: Responses field name diffs ──────────────────────
+
+  - fixture_id: "*"
+    field_path: "data.object"
+    reason: "Python uses 'chat.completion.chunk' for Gemini-converted events; Node uses different object types."
+    migration: "OpenAI Chat format vs Gemini format object field difference."
+    status: tracked
+
+  - fixture_id: "*"
+    field_path: "data.id"
+    reason: "Python generates synthetic IDs (e.g., chatcmpl-wrouter) for Gemini-converted events; Node keeps upstream IDs or generates different ones."
+    migration: "Different ID generation strategies between implementations."
+    status: tracked
+
+  # ── Structural: Non-stream Responses usage details ──────────────
+
+  - fixture_id: "*"
+    field_path: "usage.input_tokens_details.cache_creation_tokens"
+    reason: "Python omits cache_creation_tokens when zero; Node always includes it as 0."
+    migration: "Python normalizes usage fields; Node includes all usage detail fields."
+    status: tracked
+
+  - fixture_id: "*"
+    field_path: "usage.input_tokens_details.cache_write_tokens"
+    reason: "Same as cache_creation_tokens."
+    migration: "Same root cause."
+    status: tracked
+
+  # ── Structural: Non-stream Responses output_text ────────────────
+
+  - fixture_id: "contract_nonstream_responses"
+    field_path: "output"
+    reason: "Python constructs output[] with reasoning→message ordering; Node constructs output[] with reasoning type='reasoning_text' vs Python's 'reasoning'. Node also adds reasoning_details array, Python doesn't."
+    migration: "Python uses 'reasoning' as content type; Node uses 'reasoning_text'. Node includes reasoning_details with original thinking blocks."
+    status: tracked
+
+  - fixture_id: "contract_nonstream_responses"
+    field_path: "output[0].content[0].type"
+    reason: "Python uses 'reasoning', Node uses 'reasoning_text'"
+    migration: "Node OpenAI Responses spec uses 'reasoning_text' sub-type under content parts; Python uses 'reasoning' as the direct type."
+    status: tracked

@@ -1,0 +1,13 @@
+# 20261102_01 P5-1:Windows 桌面壳默认用 MSVC 工具链出包。
+#
+# 为什么默认切到 msvc(而不是本机 rustup 默认的 x86_64-pc-windows-gnu):
+#   1) GNU(mingw) 链接 Tauri exe 会报 `.rsrc merge failure` 告警;
+#   2) GNU 工具链下 WebView2Loader.dll 装载失败(0xC0000135 / 0xC0000139)
+#      → `cargo test` 的 harness 起不来,只有 msvc target 能跑;
+#   3) NSIS 安装包内的 exe 需要与 VS Build Tools(MSVC 14.44)的 ABI 一致。
+#
+# 注意: 只影响 `desktop/src-tauri` 这个**独立 Cargo 工程**。
+# 后端 `backend/` 不在本目录树内 → 仍是 gnu 宿主工具链
+# (packaging/build-rust.sh 的 musl 交叉编译链不受影响)。
+[build]
+target = "x86_64-pc-windows-msvc"

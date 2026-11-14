@@ -1,0 +1,33 @@
+{
+  "id": "up-ok",
+  "object": "response",
+  "model": "m-golden",
+  "status": "completed",
+  "output": [
+    {
+      "id": "msg_6689621a1f124d0297c583ad2745a2a7",
+      "type": "message",
+      "role": "assistant",
+      "status": "completed",
+      "content": [
+        {
+          "type": "output_text",
+          "text": "hello from upstream",
+          "annotations": []
+        }
+      ]
+    }
+  ],
+  "output_text": "hello from upstream",
+  "usage": {
+    "input_tokens": 3,
+    "output_tokens": 5,
+    "total_tokens": 8,
+    "input_tokens_details": {
+      "cached_tokens": 0
+    },
+    "output_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  }
+}

@@ -1,0 +1,14 @@
+﻿: keepalive
+event: vendor.ping
+id: 42
+retry: 1500
+x-unknown: a:b
+data:  one
+data: two
+
+event: message
+data: {"ok":true}
+
+data: [DONE]
+
+data: tail-without-blank

@@ -1,0 +1,224 @@
+{
+  "tool": "admin_parity",
+  "run_at": "2026-08-30T12:54:07",
+  "cases": {
+    "00-rest-GET-/api/v1/health": {
+      "match": true,
+      "diffs": []
+    },
+    "01-rest-GET-/api/v1/capabilities": {
+      "match": true,
+      "diffs": []
+    },
+    "02-rest-GET-/api/v1/status": {
+      "match": true,
+      "diffs": []
+    },
+    "03-rpc-getConfig": {
+      "match": true,
+      "diffs": []
+    },
+    "04-rpc-getRouteDiagnostics": {
+      "match": true,
+      "diffs": []
+    },
+    "05-rpc-getGatewayStatus": {
+      "match": true,
+      "diffs": []
+    },
+    "06-rpc-getAppInfo": {
+      "match": true,
+      "diffs": []
+    },
+    "07-rpc-getProxyStatus": {
+      "match": true,
+      "diffs": []
+    },
+    "08-rpc-getProxyNetworkCaptures": {
+      "match": true,
+      "diffs": []
+    },
+    "09-rpc-clearProxyNetworkCaptures": {
+      "match": true,
+      "diffs": []
+    },
+    "10-rpc-setProxyNetworkCaptureEnabled": {
+      "match": true,
+      "diffs": []
+    },
+    "11-rpc-getUpdateStatus": {
+      "match": true,
+      "diffs": []
+    },
+    "12-rpc-exportData": {
+      "match": true,
+      "diffs": []
+    },
+    "13-rpc-getCallLogs": {
+      "match": true,
+      "diffs": []
+    },
+    "14-rpc-getCallLogs": {
+      "match": true,
+      "diffs": []
+    },
+    "15-rpc-getCallLogs": {
+      "match": true,
+      "diffs": []
+    },
+    "16-rpc-getRequestLogDetail": {
+      "match": true,
+      "diffs": []
+    },
+    "17-rpc-getRequestLogDetail": {
+      "match": true,
+      "diffs": []
+    },
+    "18-rpc-getRequestLogDetail": {
+      "match": true,
+      "diffs": []
+    },
+    "19-rpc-getRequestLogDetail": {
+      "match": true,
+      "diffs": []
+    },
+    "20-rpc-getRequestLogDetail": {
+      "match": true,
+      "diffs": []
+    },
+    "21-rpc-getUsageStats": {
+      "match": true,
+      "diffs": []
+    },
+    "22-rpc-getUsageStats": {
+      "match": true,
+      "diffs": []
+    },
+    "23-rpc-getUsageStats": {
+      "match": true,
+      "diffs": []
+    },
+    "24-rpc-getUsageStats": {
+      "match": true,
+      "diffs": []
+    },
+    "25-rpc-getUsageStats": {
+      "match": true,
+      "diffs": []
+    },
+    "26-rpc-getUsageStats": {
+      "match": true,
+      "diffs": []
+    },
+    "27-rpc-getApiKeyLastUsed": {
+      "match": true,
+      "diffs": []
+    },
+    "28-rpc-thisMethodDoesNotExist": {
+      "match": true,
+      "diffs": []
+    },
+    "29-rpc-updateCheck": {
+      "match": true,
+      "diffs": []
+    },
+    "30-rest-GET-/api/v1/status": {
+      "match": true,
+      "diffs": []
+    },
+    "31-rest-GET-/api/v1/config": {
+      "match": true,
+      "diffs": []
+    },
+    "32-rest-GET-/api/v1/config/export": {
+      "match": true,
+      "diffs": []
+    },
+    "33-rest-GET-/api/v1/providers": {
+      "match": true,
+      "diffs": []
+    },
+    "34-rest-GET-/api/v1/request-logs": {
+      "match": true,
+      "diffs": []
+    },
+    "35-rest-GET-/api/v1/usage": {
+      "match": true,
+      "diffs": []
+    },
+    "36-rest-GET-/api/v1/metrics": {
+      "match": true,
+      "diffs": []
+    },
+    "37-rest-GET-/api/v1/metrics?format=prometheus": {
+      "match": true,
+      "diffs": []
+    },
+    "38-rpc-probeProviderCandidates": {
+      "match": true,
+      "diffs": []
+    },
+    "39-rpc-checkProviderConnectivity": {
+      "match": true,
+      "diffs": []
+    },
+    "40-rpc-getProviderAccountSnapshots": {
+      "match": true,
+      "diffs": []
+    },
+    "41-rpc-getProviderAccountSnapshots": {
+      "match": true,
+      "diffs": []
+    },
+    "42-rest-POST-/api/v1/providers/probe": {
+      "match": true,
+      "diffs": []
+    },
+    "43-rest-POST-/api/v1/providers/health/check": {
+      "match": true,
+      "diffs": []
+    },
+    "44-rest-GET-/api/v1/providers/health": {
+      "match": true,
+      "diffs": []
+    },
+    "45-rest-PUT-/api/v1/providers/prov-new": {
+      "match": true,
+      "diffs": []
+    },
+    "46-rest-PUT-/api/v1/providers/bad": {
+      "match": true,
+      "diffs": []
+    },
+    "47-rest-DELETE-/api/v1/providers/ghost": {
+      "match": true,
+      "diffs": []
+    },
+    "48-rpc-saveApiKeys": {
+      "match": true,
+      "diffs": []
+    },
+    "49-rpc-saveConfig": {
+      "match": true,
+      "diffs": []
+    },
+    "50-rest-POST-/api/v1/config/import": {
+      "match": true,
+      "diffs": []
+    },
+    "51-rest-PUT-/api/v1/config": {
+      "match": true,
+      "diffs": []
+    },
+    "52-rpc-getConfig": {
+      "match": true,
+      "diffs": []
+    },
+    "53-rest-GET-/api/v1/config/export": {
+      "match": true,
+      "diffs": []
+    }
+  },
+  "match_count": 54,
+  "total": 54
+}

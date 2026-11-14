@@ -1,0 +1,80 @@
+{
+  "schema": "wrouter.events",
+  "version": 1,
+  "description": "Management-plane SSE event contract (rebuild plan 14, R0.6/D7). Single endpoint GET /api/wr/events on the management port (3462), auth = management token. Framing: `event: <type>` + `data: <json>` + blank line, media_type text/event-stream. The Rust management server (R5) must emit identical event types with identical framing; parity diffs exclude all fields marked volatile.",
+  "endpoint": "/api/wr/events",
+  "transport": "sse",
+  "auth": "management token (same as /api/wr/rpc)",
+  "events": [
+    {
+      "type": "gateway-status",
+      "since": "R0",
+      "data": {
+        "type": "object",
+        "required": ["ok", "name", "version", "port", "ts"],
+        "properties": {
+          "ok": { "type": "boolean", "volatile": false },
+          "name": { "type": "string", "const": "WRouter", "volatile": false },
+          "version": { "type": "string", "volatile": false },
+          "port": { "type": "integer", "volatile": false },
+          "ts": { "type": "integer", "volatile": true, "description": "Emitter-local millis; heartbeat ordering only" }
+        }
+      },
+      "cadence": "1s heartbeat while connected"
+    },
+    {
+      "type": "config-changed",
+      "since": "planned (F2b / Rust R5)",
+      "data": {
+        "type": "object",
+        "description": "Reserved by D7; fields finalized when first emitter lands. Must carry a scope hint (e.g. providers|api-keys|routing) so clients can invalidate narrowly."
+      }
+    },
+    {
+      "type": "log-appended",
+      "since": "planned (F2b / Rust R5)",
+      "data": {
+        "type": "object",
+        "description": "Reserved by D7. Must be emitted per persisted request-log row (respecting the callLogs switch, C3) with at least the row id for targeted refetch."
+      }
+    },
+    {
+      "type": "usage-updated",
+      "since": "planned (F2b / Rust R5)",
+      "data": {
+        "type": "object",
+        "description": "Reserved by D7. Coalescing allowed; must not carry secrets."
+      }
+    },
+    {
+      "type": "inflight-changed",
+      "since": "2026-09-26 call-logs status rework (Rust, no Python mirror)",
+      "data": {
+        "type": "object",
+        "required": ["requestId", "phase"],
+        "properties": {
+          "requestId": { "type": "string", "volatile": false },
+          "phase": { "type": "string", "enum": ["pending", "processing", "first-byte"], "volatile": false, "description": "pending = admitted, not yet dispatching upstream; processing = upstream call in progress; first-byte = first streamed chunk observed (TTFT now available in the in-flight row)" }
+        },
+        "description": "Emitted when an authenticated request registers in the in-flight registry (pending) and when it acquires a concurrency permit (processing). Completion is still signalled by log-appended; clients invalidate call-logs queries."
+      }
+    },
+    {
+      "type": "service-stopping",
+      "since": "2026-11-03 stop-drain fix (Rust, no Python mirror)",
+      "data": {
+        "type": "object",
+        "required": ["reason", "ts"],
+        "properties": {
+          "reason": { "type": "string", "volatile": false, "description": "why the process is stopping (e.g. shutdown)" },
+          "ts": { "type": "integer", "volatile": true, "description": "Emitter-local millis" }
+        },
+        "description": "Emitted to every connected SSE client right before the management plane ends the event stream during process shutdown. Semantics: the stop request was ACCEPTED, the process has NOT exited yet. Clients must switch to a stopping UI state and cancel their reconnect loop; the process exit itself is confirmed by the management endpoint becoming unreachable."
+      }
+    }
+  ],
+  "reconnect": {
+    "strategy": "client auto-reconnect with exponential backoff",
+    "lastEventId": "not supported in R0 (no replay); clients refetch active queries after reconnect"
+  }
+}

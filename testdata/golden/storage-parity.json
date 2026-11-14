@@ -1,0 +1,158 @@
+{
+  "gateway_port": 3460,
+  "cases": {
+    "openai-chat-basic": {
+      "match": true,
+      "diffs": [],
+      "gaps": []
+    },
+    "openai-chat-stream-text": {
+      "match": true,
+      "diffs": [],
+      "gaps": []
+    },
+    "openai-chat-stream-tool-first-fragment": {
+      "match": true,
+      "diffs": [],
+      "gaps": []
+    },
+    "openai-chat-stream-multi-tool": {
+      "match": true,
+      "diffs": [],
+      "gaps": []
+    },
+    "openai-chat-stream-usage-tail": {
+      "match": true,
+      "diffs": [],
+      "gaps": []
+    },
+    "openai-embeddings": {
+      "match": true,
+      "diffs": [],
+      "gaps": []
+    },
+    "openai-responses-basic": {
+      "match": true,
+      "diffs": [],
+      "gaps": []
+    },
+    "openai-responses-native-provider": {
+      "match": true,
+      "diffs": [],
+      "gaps": []
+    },
+    "openai-responses-stream": {
+      "match": true,
+      "diffs": [],
+      "gaps": []
+    },
+    "anthropic-native-stream-tool-use": {
+      "match": true,
+      "diffs": [],
+      "gaps": []
+    },
+    "anthropic-client-openai-upstream": {
+      "match": true,
+      "diffs": [],
+      "gaps": []
+    },
+    "anthropic-client-openai-upstream-stream": {
+      "match": true,
+      "diffs": [],
+      "gaps": []
+    },
+    "openai-client-anthropic-upstream": {
+      "match": true,
+      "diffs": [],
+      "gaps": []
+    },
+    "gemini-client-openai-upstream": {
+      "match": true,
+      "diffs": [],
+      "gaps": []
+    },
+    "gemini-stream-client-openai-upstream": {
+      "match": true,
+      "diffs": [],
+      "gaps": []
+    },
+    "gemini-native-generate": {
+      "match": true,
+      "diffs": [],
+      "gaps": []
+    },
+    "gemini-native-stream": {
+      "match": true,
+      "diffs": [],
+      "gaps": []
+    },
+    "responses-client-openai-chat-upstream": {
+      "match": true,
+      "diffs": [],
+      "gaps": []
+    },
+    "gemini-interactions-basic": {
+      "match": true,
+      "diffs": [],
+      "gaps": []
+    },
+    "upstream-401": {
+      "match": true,
+      "diffs": [],
+      "gaps": []
+    },
+    "upstream-429": {
+      "match": true,
+      "diffs": [],
+      "gaps": [
+        "provider_health: python=1 rust=0 —— 已知差距:healthScheduler 随 R5.3 落地(端口与表已实现)"
+      ]
+    },
+    "upstream-500": {
+      "match": true,
+      "diffs": [],
+      "gaps": [
+        "provider_health: python=1 rust=0 —— 已知差距:healthScheduler 随 R5.3 落地(端口与表已实现)"
+      ]
+    },
+    "upstream-503-fallback": {
+      "match": true,
+      "diffs": [],
+      "gaps": []
+    },
+    "upstream-400-no-retry": {
+      "match": true,
+      "diffs": [],
+      "gaps": []
+    },
+    "upstream-slow-timeout": {
+      "match": true,
+      "diffs": [],
+      "gaps": [
+        "provider_health: python=1 rust=0 —— 已知差距:healthScheduler 随 R5.3 落地(端口与表已实现)"
+      ]
+    },
+    "stream-midway-disconnect": {
+      "match": true,
+      "diffs": [],
+      "gaps": []
+    },
+    "auth-failed": {
+      "match": true,
+      "diffs": [],
+      "gaps": []
+    }
+  },
+  "gaps": [
+    "upstream-429: provider_health: python=1 rust=0 —— 已知差距:healthScheduler 随 R5.3 落地(端口与表已实现)",
+    "upstream-500: provider_health: python=1 rust=0 —— 已知差距:healthScheduler 随 R5.3 落地(端口与表已实现)",
+    "upstream-slow-timeout: provider_health: python=1 rust=0 —— 已知差距:healthScheduler 随 R5.3 落地(端口与表已实现)"
+  ],
+  "summary": {
+    "total": 27,
+    "mismatch": 0,
+    "known_gaps": [
+      "python=1 rust=0 —— 已知差距:healthScheduler 随 R5.3 落地(端口与表已实现)"
+    ]
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "case_id": "openai-embeddings",
+  "spec_ref": "20261012_01 §1.2 请求侧 · openai_embeddings × openai",
+  "captured_at": "2026-11-05T14:01:51",
+  "requests": [
+    {
+      "method": "POST",
+      "upstream": "openai-embeddings",
+      "path": "/openai-embeddings/v1/embeddings",
+      "content_type": "application/json",
+      "headers": {
+        "accept": "*/*"
+      },
+      "body_bytes": 36,
+      "body_sha256": "6c1543819f437e62f1a0035e3b8f83441855d658c3a68cd54f580f5de69b1891",
+      "body": "{\"model\":\"m-golden\",\"input\":\"hello\"}"
+    }
+  ]
+}

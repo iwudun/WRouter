@@ -1,0 +1,17 @@
+{
+  "description": "Anthropic Messages upstream stream with one tool_use content block. The Anthropic client relay (Anthropic inbound, OpenAI outbound) is not tested here; this fixture validates the OpenAI Chat relay ingesting an Anthropic upstream tool_use stream and producing a well-formed OpenAI Chat tool_calls output with the right index.",
+  "client_protocol": "openai",
+  "upstream_protocol": "anthropic",
+  "upstream_sse": [
+    "event: message_start\ndata: {\"type\":\"message_start\",\"message\":{\"id\":\"msg_1\",\"model\":\"claude-m\",\"content\":[],\"usage\":{\"input_tokens\":8}}}",
+    "event: content_block_start\ndata: {\"type\":\"content_block_start\",\"index\":0,\"content_block\":{\"type\":\"tool_use\",\"id\":\"toolu_1\",\"name\":\"get_weather\",\"input\":{}}}",
+    "event: content_block_delta\ndata: {\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"input_json_delta\",\"partial_json\":\"{\\\"loc\\\":\\\"SF\\\"}\"}}",
+    "event: content_block_stop\ndata: {\"type\":\"content_block_stop\",\"index\":0}",
+    "event: message_delta\ndata: {\"type\":\"message_delta\",\"delta\":{\"stop_reason\":\"tool_use\"},\"usage\":{\"output_tokens\":3}}",
+    "event: message_stop\ndata: {\"type\":\"message_stop\"}"
+  ],
+  "expected_tool_calls": {
+    "0": {"name": "get_weather", "arguments": "{\"loc\":\"SF\"}"}
+  },
+  "expected_usage": {"input_tokens": 8, "output_tokens": 3, "total_tokens": 11}
+}

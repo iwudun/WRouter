@@ -1,0 +1,7 @@
+{
+  "routingRules": [
+    { "match": "gpt-*", "provider": "legacy-provider" }
+  ],
+  "router": { "fallback": { "provider": "legacy-router" } },
+  "routerFallback": ""
+}

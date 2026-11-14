@@ -1,0 +1,9 @@
+{
+  "method": "POST",
+  "path": "/v1/responses",
+  "headers": {},
+  "body": {
+    "model": "prov-openai-responses-native-provider/m-golden",
+    "input": "Say hi"
+  }
+}

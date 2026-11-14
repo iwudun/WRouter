@@ -1,0 +1,15 @@
+{
+  "method": "POST",
+  "path": "/v1/chat/completions",
+  "headers": {},
+  "body": {
+    "model": "prov-openai-chat-stream-usage-tail/m-golden",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Say hi"
+      }
+    ],
+    "stream": true
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "id": "chatcmpl_wrouter",
+  "object": "chat.completion",
+  "model": "m-golden",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\"reflected\": {\"generationConfig\": {\"includeThoughts\": true, \"thinkingLevel\": \"medium\"}}}"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 10,
+    "completion_tokens": 5,
+    "total_tokens": 15
+  }
+}

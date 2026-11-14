@@ -1,0 +1,4 @@
+data: {"id": "c1", "object": "chat.completion.chunk", "created": 1793889028, "model": "m-golden", "choices": [{"index": 0, "delta": {"role": "assistant", "content": "Hel"}, "finish_reason": null}]}
+data: {"id": "c1", "object": "chat.completion.chunk", "created": 1793889028, "model": "m-golden", "choices": [{"index": 0, "delta": {"content": "lo"}, "finish_reason": null}]}
+data: {"id": "c1", "object": "chat.completion.chunk", "created": 1793889028, "model": "m-golden", "choices": [{"index": 0, "delta": {}, "finish_reason": "stop"}]}
+data: [DONE]

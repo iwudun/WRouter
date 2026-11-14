@@ -1,0 +1,8 @@
+{
+  "client_protocol": "openai",
+  "upstream_protocol": "gemini",
+  "upstream_sse": [
+    "data: {\"candidates\":[{\"content\":{\"parts\":[{\"functionCall\":{\"id\":\"call-a\",\"name\":\"search\",\"args\":{\"q\":\"a\"}}},{\"functionCall\":{\"id\":\"call-b\",\"name\":\"fetch\",\"args\":{\"id\":2}}}]}}]}\n"
+  ],
+  "expected_names": ["search", "fetch"]
+}

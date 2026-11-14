@@ -1,0 +1,16 @@
+{
+  "id": "zcode",
+  "label": "ZCode",
+  "compatibleProtocols": ["anthropic", "openai", "openai_responses"],
+  "headers": {
+    "user-agent": "ZCode/3.15.3 ai-sdk/provider-utils/4.0.39 runtime/node.js/24",
+    "http-referer": "https://zcode.z.ai",
+    "x-title": "Z Code@electron",
+    "x-zcode-agent": "glm",
+    "x-zcode-app-version": "3.15.3",
+    "x-zcode-query-source": "main_turn",
+    "x-zcode-session-type": "main",
+    "x-release-channel": "production"
+  },
+  "query": {}
+}

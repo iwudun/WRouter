@@ -1,0 +1,19 @@
+{
+  "case_id": "openai-client-anthropic-upstream",
+  "spec_ref": "20261012_01 §1.2 请求侧 · openai × anthropic",
+  "captured_at": "2026-11-05T14:12:02",
+  "requests": [
+    {
+      "method": "POST",
+      "upstream": "openai-client-anthropic-upstream",
+      "path": "/openai-client-anthropic-upstream/v1/messages",
+      "content_type": "application/json",
+      "headers": {
+        "accept": "*/*"
+      },
+      "body_bytes": 111,
+      "body_sha256": "9a3d79431c3cdac27924c3ad96b92a9fc9e8f7b917beceea080cfa57a693d83b",
+      "body": "{\"model\":\"m-golden\",\"messages\":[{\"role\":\"user\",\"content\":[{\"type\":\"text\",\"text\":\"Say hi\"}]}],\"max_tokens\":4096}"
+    }
+  ]
+}

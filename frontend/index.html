@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: file:; font-src 'self' data:; connect-src 'self' http://127.0.0.1:* http://localhost:* ws://127.0.0.1:* ws://localhost:*; worker-src 'self' blob:; object-src 'none'; base-uri 'none'; form-action 'none'"
+    />
+    <title>WRouter</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <!-- F1.1: web-client-bridge is a second module entry. Module scripts run in
+         document order, so window.wr (web HTTP fallback) exists before the app
+         bundle evaluates; in the Tauri shell the init script has already injected it and
+         the bridge's if (!window.wr) guard keeps it. -->
+    <script type="module" src="/src/web-client-bridge.ts"></script>
+    <script type="module" src="/src/pages/home/main.tsx"></script>
+  </body>
+</html>

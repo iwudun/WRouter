@@ -1,0 +1,19 @@
+{
+  "case_id": "openai-chat-basic",
+  "spec_ref": "20261012_01 §1.2 请求侧 · openai × openai",
+  "captured_at": "2026-11-05T14:01:43",
+  "requests": [
+    {
+      "method": "POST",
+      "upstream": "openai-chat-basic",
+      "path": "/openai-chat-basic/v1/chat/completions",
+      "content_type": "application/json",
+      "headers": {
+        "accept": "*/*"
+      },
+      "body_bytes": 68,
+      "body_sha256": "60e04a5e6a57bdccdaa8dbd20613f54c4d1681f8949e3fa763abddf63136510d",
+      "body": "{\"model\":\"m-golden\",\"messages\":[{\"role\":\"user\",\"content\":\"Say hi\"}]}"
+    }
+  ]
+}

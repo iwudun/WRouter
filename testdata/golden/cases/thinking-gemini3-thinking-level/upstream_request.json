@@ -1,0 +1,19 @@
+{
+  "case_id": "thinking-gemini3-thinking-level",
+  "spec_ref": "20261012_01 §3.2 reasoning / thinking · gemini thinkingLevel 分代",
+  "captured_at": "2026-11-05T14:02:12",
+  "requests": [
+    {
+      "method": "POST",
+      "upstream": "thinking-gemini3-thinking-level",
+      "path": "/thinking-gemini3-thinking-level/models/gemini-3-flash-golden:generateContent",
+      "content_type": "application/json",
+      "headers": {
+        "accept": "*/*"
+      },
+      "body_bytes": 127,
+      "body_sha256": "636efa51fb672263155b3ea5a016054e7401bd955c5a6f359133df07dc1f2809",
+      "body": "{\"contents\":[{\"role\":\"user\",\"parts\":[{\"text\":\"Say hi\"}]}],\"generationConfig\":{\"thinkingLevel\":\"medium\",\"includeThoughts\":true}}"
+    }
+  ]
+}

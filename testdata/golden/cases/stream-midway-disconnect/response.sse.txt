@@ -1,0 +1,2 @@
+data: {"id": "c1", "object": "chat.completion.chunk", "created": 1792158667, "model": "m-golden", "choices": [{"index": 0, "delta": {"role": "assistant", "content": "par"}, "finish_reason": null}]}
+data: {"id": "c1", "object": "chat.completion.chunk", "created": 1792158667, "model": "m-golden", "choices": [{"index": 0, "delta": {"content": "tial"}, "finish_reason": null}]}

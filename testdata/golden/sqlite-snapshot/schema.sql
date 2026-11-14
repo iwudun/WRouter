@@ -1,0 +1,12 @@
+CREATE TABLE account_snapshots (provider_id TEXT NOT NULL,account_id TEXT NOT NULL DEFAULT '',status TEXT NOT NULL DEFAULT 'unsupported',source TEXT NOT NULL DEFAULT 'unsupported',payload TEXT NOT NULL DEFAULT '{}',fetched_at TEXT NOT NULL DEFAULT '',expires_at INTEGER NOT NULL DEFAULT 0,PRIMARY KEY (provider_id, account_id));
+CREATE TABLE app_config (id INTEGER PRIMARY KEY CHECK (id = 1), payload TEXT NOT NULL);
+CREATE TABLE circuit_breaker_state (provider_id TEXT PRIMARY KEY,consecutive_failures INTEGER NOT NULL DEFAULT 0,opened_until_ms INTEGER NOT NULL DEFAULT 0,last_state_change_ms INTEGER NOT NULL DEFAULT 0,updated_at TEXT NOT NULL);
+CREATE TABLE idempotency_entries (store_key TEXT PRIMARY KEY,request_hash TEXT NOT NULL,status_code INTEGER NOT NULL,payload TEXT NOT NULL,headers TEXT NOT NULL,expires_at INTEGER NOT NULL,created_at INTEGER NOT NULL);
+CREATE INDEX idx_request_log_bodies_created_at ON request_log_bodies(created_at);
+CREATE INDEX idx_request_logs_created_at ON request_logs(created_at);
+CREATE TABLE metadata (key TEXT PRIMARY KEY, value TEXT NOT NULL);
+CREATE TABLE provider_accounts (provider_id TEXT NOT NULL,account_id TEXT NOT NULL,label TEXT NOT NULL DEFAULT '',enabled INTEGER NOT NULL DEFAULT 1,priority INTEGER NOT NULL DEFAULT 0,weight INTEGER NOT NULL DEFAULT 1,account_config TEXT NOT NULL DEFAULT '{}',created_at TEXT NOT NULL DEFAULT '',updated_at TEXT NOT NULL DEFAULT '',PRIMARY KEY (provider_id, account_id));
+CREATE TABLE provider_health (provider_id TEXT PRIMARY KEY,status TEXT NOT NULL DEFAULT 'unknown',available INTEGER NOT NULL DEFAULT 0,latency_ms INTEGER NOT NULL DEFAULT 0,checked_at TEXT NOT NULL DEFAULT '',error TEXT);
+CREATE TABLE request_log_bodies (request_id TEXT PRIMARY KEY,created_at TEXT NOT NULL DEFAULT '',request_body TEXT,request_body_size INTEGER,request_body_truncated INTEGER,response_body TEXT,response_body_size INTEGER,response_body_truncated INTEGER,response_headers TEXT);
+CREATE TABLE request_logs (request_id TEXT PRIMARY KEY, created_at TEXT NOT NULL, payload TEXT NOT NULL);
+CREATE TABLE secrets (name TEXT PRIMARY KEY, value TEXT NOT NULL);

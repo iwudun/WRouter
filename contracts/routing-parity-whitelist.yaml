@@ -1,0 +1,187 @@
+version: 1
+# =============================================================================
+# WRouter × CCR routing-parity whitelist
+# =============================================================================
+#
+# Schema (semantic superset of contracts/contract-whitelist.yaml):
+#   version: schema version (currently 1)
+#   entries: list of audited dimensions
+#     dimension:    one of the 13 dimensions enumerated in doc 07 §2.A2
+#     sub_item:     specific case within the dimension
+#     ccr_behavior: what CCR (claude-code-router) does
+#     wrouter_behavior: what WRouter currently does (code:line if relevant)
+#     gap_class:    equivalent | intentional-divergence | bug | missing
+#                   ("missing" entries are deferred to A2.impl)
+#     a2_action:    what A2 did about it (or "→ A2.impl" if deferred)
+#     status:       permanent | tracked | migrated
+#                   (tracked = known gap awaiting future work; permanent = accepted)
+#
+# This file is documentation/audit output. It is NOT loaded by the runtime —
+# backend pyproject.toml does not declare PyYAML, and the file is consumed only
+# by human readers and the A2 routing-parity report.
+# =============================================================================
+
+entries:
+  # ─── A: Compa rable items (positive parity) ──────────────────────────────
+
+  - dimension: "exact-model-membership"
+    sub_item: "literal match in provider.models tuple"
+    ccr_behavior: "Registry.resolve() does exact match against configured model names; bare name matches single provider's model."
+    wrouter_behavior: "choose_provider filters `model in provider.models` (exact membership)."
+    gap_class: equivalent
+    a2_action: "covered by test_exact_model_membership_selects_provider"
+    status: permanent
+
+  - dimension: "wildcard-model"
+    sub_item: '"*" matches any model'
+    ccr_behavior: "Provider with model id '*' resolves to any bare selector (CCR `model-registry.ts` falls through to single-provider match)."
+    wrouter_behavior: "choose_provider short-circuits when '*' is in provider.models."
+    gap_class: equivalent
+    a2_action: "covered by test_wildcard_model_matches_any"
+    status: permanent
+
+  - dimension: "preferred-provider-sort"
+    sub_item: "preferred_provider id moves to position 0"
+    ccr_behavior: "RouteResolution sorts the candidate list so the preferred provider is tried first."
+    wrouter_behavior: "choose_provider stable-sorts `0 if p.id == preferred else 1`."
+    gap_class: equivalent
+    a2_action: "covered by test_preferred_provider_wins_tie"
+    status: permanent
+
+  - dimension: "linear-fallback-order"
+    sub_item: "fallback_providers tuple preserves order"
+    ccr_behavior: "execution-plan.ts retry mode: `retryCount + 1` attempts on same provider, NO provider-level fallback (model-chain is separate)."
+    wrouter_behavior: "_request_with_fallback iterates `[selected] + [primary.fallback_providers...]` in tuple order, retry-then-fallback per provider."
+    gap_class: intentional-divergence
+    a2_action: "Models differ (CCR has no provider-level fallback — only model-chain); WRouter's per-provider fallback is documented in doc 07 §1.4 as a design enhancement. covered by test_fallback_chain_preserves_order."
+    status: permanent
+
+  - dimension: "claude-desktop-hex-decode"
+    sub_item: "anthropic/claude-{wr,ccr}-h<hex> → original model name"
+    ccr_behavior: "resolveClaudeCodeDiscoveredModelId: strips Provider/ prefix from decoded string."
+    wrouter_behavior: "_decode_claude_app_model in use_case.py:70-113 accepts both wr/ and ccr prefixes, strips Provider/ prefix."
+    gap_class: equivalent
+    a2_action: "covered by test_decode_claude_app_model_pure (test_gateway.py) and test_claude_hex_decode_parity"
+    status: permanent
+
+  - dimension: "disabled-provider-exclusion"
+    sub_item: "enabled=False providers not selected"
+    ccr_behavior: "Compilation/instantiation filters providers with enabled=false from the routing pool."
+    wrouter_behavior: "choose_provider filters `p.enabled` on line 35 of policies.py."
+    gap_class: equivalent
+    a2_action: "covered by test_disabled_provider_excluded"
+    status: permanent
+
+  - dimension: "gemini-path-rewrite"
+    sub_item: "model segment URL-encoded in /v1beta/models/<m>:<action>"
+    ccr_behavior: "rewriteRouteModelInUrl uses encodeURIComponent on the model segment of the Gemini path-style URL."
+    wrouter_behavior: "_endpoint (use_case.py:1071-1097) uses urllib.parse.quote(model, safe='') — equivalent to encodeURIComponent for /, :, +, space, etc."
+    gap_class: equivalent
+    a2_action: "covered by test_gemini_endpoint_url_encodes_model_like_ccr (parameterized over /, :, space, +, ~, CJK, ASCII)."
+    status: permanent
+
+  # ─── B: Bugs (fixed by A2) ────────────────────────────────────────────────
+
+  - dimension: "failure-classification"
+    sub_item: "408 Request Timeout → fallback on multi-provider"
+    ccr_behavior: "classifyRouteFailure: 408 → retryable → shouldFallback=true under retry mode."
+    wrouter_behavior: "408 was in RETRY_STATUS_CODES but NOT in FALLBACK_STATUS_CODES — exhausted retries → return 408 to client without trying fallback."
+    gap_class: bug
+    a2_action: "Added 408 to FALLBACK_STATUS_CODES (policies.py:25). covered by test_408_falls_back_to_next_provider."
+    status: migrated
+
+  - dimension: "failure-classification"
+    sub_item: "409 Conflict → fallback on multi-provider"
+    ccr_behavior: "classifyRouteFailure: 409 → retryable → shouldFallback=true under retry mode."
+    wrouter_behavior: "409 was in NO set at all — caught by use_case.py:782 catch-all and returned verbatim to client (pass-through)."
+    gap_class: bug
+    a2_action: "Added 409 to FALLBACK_STATUS_CODES (policies.py:25). covered by test_409_falls_back_to_next_provider and test_single_provider_409_still_passthrough (boundary lock)."
+    status: migrated
+
+  - dimension: "failure-classification"
+    sub_item: "501 Not Implemented → fallback on multi-provider"
+    ccr_behavior: "classifyRouteFailure: status≥500 → server → shouldFallback=true under retry mode."
+    wrouter_behavior: "501 was not in FALLBACK_STATUS_CODES — only retried (status≥500) but never fell back; docstring on policies.py:21-24 even claimed '501 should fall back but not retry' which was misleading because RETRY_STATUS_CODES OR status>=500 covered retry."
+    gap_class: bug
+    a2_action: "Added 501 to FALLBACK_STATUS_CODES (policies.py:25); updated misleading docstring. covered by test_501_falls_back_to_next_provider."
+    status: migrated
+
+  - dimension: "should_retry-on-http-status-codes"
+    sub_item: "should_retry(response.status_code, ...) called in HTTP response path"
+    ccr_behavior: "createRouteExecutionPlan: retry mode builds N+1 attempts all on the same provider; executor consumes the plan attempt-by-attempt."
+    wrouter_behavior: "use_case.py:716-788 _request_with_fallback: the inner retry loop has `for attempt in range(provider.max_retries + 1)`, but the HTTP response branch (line 772-782) only calls should_fallback — never should_retry(response.status_code, ...). should_retry is called only on line 768 with literal `0` (network-error path). Net effect: HTTP responses with retry-class codes (429/5xx) NEVER retry against the same provider — they immediately break out and try the fallback chain."
+    gap_class: bug
+    a2_action: "Documented; deferred to A2.impl.4 (execution plan + failure classifier integration). A2 does NOT fix the control flow — fixing it requires restructuring the inner loop to call should_retry(status_code, attempt, max_retries) on the response path. Adding 409/501 to RETRY_STATUS_CODES would have been a no-op and was therefore deliberately skipped in A2-T3."
+    status: tracked
+
+  # ─── C: Missing (deferred to A2.impl) ─────────────────────────────────────
+
+  - dimension: "condition-rule"
+    sub_item: "RouterRule.condition: {left, operator, right}"
+    ccr_behavior: "10 operators (==, !=, >, >=, <, <=, contains, contains-deep, not-contains, starts-with) over request.header.* / request.body.* / request.url / request.tokenCount / request.sessionId."
+    wrouter_behavior: "NOT IMPLEMENTED. AppConfig.routing_rules is opaque list[dict] — round-tripped from CCR import but never consulted by routing code."
+    gap_class: missing
+    a2_action: "→ A2.impl.3 (executor & predicates). A2 writes test_condition_rule_not_applied as a regression baseline."
+    status: tracked
+
+  - dimension: "model-prefix-rule"
+    sub_item: "RouterRule.type=model-prefix matches body.model.startsWith(pattern)"
+    ccr_behavior: "resolveRouterRule (claude-code-router-plugin.ts:865-870) does case-sensitive startsWith on body.model."
+    wrouter_behavior: "NOT IMPLEMENTED. covered by test_model_prefix_rule_not_applied."
+    gap_class: missing
+    a2_action: "→ A2.impl.3"
+    status: tracked
+
+  - dimension: "header-body-predicate-path"
+    sub_item: "request.header.<name>, request.body.<path>, request.url, request.tokenCount"
+    ccr_behavior: "resolveRouterConditionValue reads from request context paths."
+    wrouter_behavior: "NOT IMPLEMENTED. covered by test_header_body_predicate_not_applied."
+    gap_class: missing
+    a2_action: "→ A2.impl.3"
+    status: tracked
+
+  - dimension: "rule-rewrite"
+    sub_item: "RouterRule.rewrite / rewrites: set/delete/array-* on request.body.* or request.header.*"
+    ccr_behavior: "applyRouterRewrite walks setPathValue/deletePathValue with last-write-wins semantics."
+    wrouter_behavior: "NOT IMPLEMENTED. covered by test_rewrite_not_applied."
+    gap_class: missing
+    a2_action: "→ A2.impl.3"
+    status: tracked
+
+  - dimension: "model-chain-fallback"
+    sub_item: "RouterRule.fallback.mode=model-chain: ordered [primary, ...fallback.models]"
+    ccr_behavior: "createRouteExecutionPlan model-chain: attempts = uniqueStrings([primaryModel, ...fallback.models])."
+    wrouter_behavior: "NOT IMPLEMENTED. Only provider-level fallback exists. covered by test_model_chain_fallback_absent."
+    gap_class: missing
+    a2_action: "→ A2.impl.4"
+    status: tracked
+
+  - dimension: "provider-model-selector"
+    sub_item: "'Provider/model' selector + comma→slash normalization"
+    ccr_behavior: "ModelRegistry.resolve() normalizes 'Primary,alpha' → 'Primary/alpha', resolves case-insensitive provider/model aliases, handles ::openai_chat_completions etc."
+    wrouter_behavior: "NOT IMPLEMENTED. choose_provider only does `model in provider.models` literal match. covered by test_provider_model_selector_unresolved."
+    gap_class: missing
+    a2_action: "→ A2.impl.1 (model registry)"
+    status: tracked
+
+  - dimension: "compile-diagnostics"
+    sub_item: "5 diagnostic codes (rule-model-not-configured, fallback-model-not-configured, profile-model-not-configured, custom-model-not-configured, rule-provider-model-conflict)"
+    ccr_behavior: "compileRouterConfig emits diagnostics during config compilation, surfaced in CompiledRouterConfig.diagnostics."
+    wrouter_behavior: "NOT IMPLEMENTED. covered by test_no_compile_diagnostics."
+    gap_class: missing
+    a2_action: "→ A2.impl.2 (config compiler)"
+    status: tracked
+
+# =============================================================================
+# Summary:
+#   equivalent: 7   (exact-match, wildcard, preferred, fallback-order, hex-decode,
+#                    disabled-exclusion, gemini-path-rewrite)
+#   intentional-divergence: 1   (linear-fallback-order — provider-level fallback
+#                                is a WRouter design enhancement over CCR)
+#   bug (fixed by A2): 3   (408, 409, 501 not falling back)
+#   bug (tracked, deferred to A2.impl.4): 1   (should_retry not called on HTTP
+#                                                       response path)
+#   missing (deferred to A2.impl.1-4): 6
+#   ─────
+#   total audited: 13 dimensions (matches doc 07 §2.A2 control table)
+# =============================================================================

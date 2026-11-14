@@ -1,0 +1,19 @@
+{
+  "case_id": "thinking-openai-to-anthropic",
+  "spec_ref": "20261012_01 §3.2 reasoning / thinking · openai → anthropic thinking 映射",
+  "captured_at": "2026-11-05T14:02:36",
+  "requests": [
+    {
+      "method": "POST",
+      "upstream": "thinking-openai-to-anthropic",
+      "path": "/thinking-openai-to-anthropic/v1/messages",
+      "content_type": "application/json",
+      "headers": {
+        "accept": "*/*"
+      },
+      "body_bytes": 317,
+      "body_sha256": "29a07df6a47f5b41161279737c2a5212319dc1f2d373b74b7934e2cb6c492439",
+      "body": "{\"model\":\"m-golden\",\"messages\":[{\"role\":\"user\",\"content\":[{\"type\":\"text\",\"text\":\"Say hi\"}]}],\"max_tokens\":2048,\"thinking\":{\"type\":\"enabled\",\"budget_tokens\":2047},\"tools\":[{\"name\":\"mcp_2E_demo_2E_tool\",\"description\":\"d\",\"input_schema\":{\"type\":\"object\"}}],\"tool_choice\":{\"type\":\"auto\",\"disable_parallel_tool_use\":true}}"
+    }
+  ]
+}

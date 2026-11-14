@@ -1,0 +1,7 @@
+{
+  "error": {
+    "message": "rate limited",
+    "type": "upstream_error",
+    "code": "429"
+  }
+}

@@ -1,0 +1,72 @@
+{
+  "account_snapshots": [],
+  "app_config": [
+    {
+      "id": 1,
+      "payload": "{\"version\": 2, \"preferredProvider\": \"prov-golden-a\", \"Providers\": [{\"id\": \"prov-golden-a\", \"name\": \"Golden A\", \"base_url\": \"https://golden-a.test/v1\", \"protocol\": \"openai\", \"models\": [\"m-1\", \"m-2\"], \"credential\": \"\"}, {\"id\": \"prov-golden-b\", \"name\": \"Golden B\", \"base_url\": \"https://golden-b.test\", \"protocol\": \"anthropic\", \"models\": [\"m-2\"], \"credential\": \"\"}], \"APIKEYS\": [{\"key\": \"<redacted>\", \"enabled\": true, \"name\": \"golden-client\", \"created_at\": 1700000000}], \"routingRules\": [], \"policies\": {\"enabled\": true, \"defaultEffect\": \"allow\", \"rules\": []}, \"reliability\": {\"circuit_breaker\": {\"enabled\": true, \"failure_threshold\": 3, \"cooldown_ms\": 30000, \"failure_status_codes\": [408, 429, 500, 502, 503, 504]}, \"concurrency\": {\"enabled\": true, \"max_in_flight_per_provider\": 8, \"queue_timeout_ms\": 0}, \"idempotency\": {\"enabled\": true, \"ttl_ms\": 300000, \"max_entries\": 1000, \"header_name\": \"idempotency-key\", \"cache_error_responses\": false}, \"health\": {\"enabled\": true, \"initial_delay_ms\": 5000, \"interval_ms\": 30000, \"timeout_ms\": 5000}, \"precheck\": {\"enabled\": false, \"rate_limit_rules\": [], \"budget_max_cost_usd\": 0.0}, \"metrics\": {\"enabled\": true, \"include_provider_health\": true}}, \"theme\": \"system\", \"proxy\": {}, \"observability\": {}, \"Router\": {\"rules\": [], \"fallback\": {}}}"
+    }
+  ],
+  "circuit_breaker_state": [
+    {
+      "provider_id": "prov-golden-a",
+      "consecutive_failures": 0,
+      "opened_until_ms": 0,
+      "last_state_change_ms": 0,
+      "updated_at": "2026-08-29 00:53:32"
+    }
+  ],
+  "idempotency_entries": [
+    {
+      "store_key": "golden-key-1",
+      "request_hash": "hash-golden-1",
+      "status_code": 200,
+      "payload": "{\"id\": \"idem-1\"}",
+      "headers": "{\"x-wrouter-request-id\": \"req-golden-0\"}",
+      "expires_at": 1700000060000,
+      "created_at": 1700000000000
+    }
+  ],
+  "metadata": [],
+  "provider_accounts": [],
+  "provider_health": [],
+  "request_log_bodies": [
+    {
+      "request_id": "req-golden-0",
+      "created_at": "2026-08-29 00:53:32",
+      "request_body": "{\"messages\": [{\"role\": \"user\", \"content\": \"hi\"}]}",
+      "request_body_size": 42,
+      "request_body_truncated": 0,
+      "response_body": "{\"choices\": [{\"message\": {\"content\": \"hello\"}}]}",
+      "response_body_size": 47,
+      "response_body_truncated": 0,
+      "response_headers": "{\"content-type\": \"application/json\"}"
+    }
+  ],
+  "request_logs": [
+    {
+      "request_id": "req-golden-0",
+      "created_at": "2026-08-29 00:53:32",
+      "payload": "{\"protocol\": \"openai\", \"model\": \"m-1\", \"status\": 200, \"provider\": \"prov-golden-a\", \"duration_ms\": 100, \"usage\": {\"prompt_credentials\": 3, \"completion_credentials\": 2, \"total_credentials\": 5}, \"end_reason\": \"completed\"}"
+    },
+    {
+      "request_id": "req-golden-1",
+      "created_at": "2026-08-29 00:53:32",
+      "payload": "{\"protocol\": \"openai\", \"model\": \"m-1\", \"status\": 429, \"provider\": \"prov-golden-a\", \"duration_ms\": 101, \"usage\": {\"prompt_credentials\": 4, \"completion_credentials\": 2, \"total_credentials\": 6}, \"end_reason\": \"error\"}"
+    },
+    {
+      "request_id": "req-golden-2",
+      "created_at": "2026-08-29 00:53:32",
+      "payload": "{\"protocol\": \"anthropic\", \"model\": \"m-2\", \"status\": 200, \"provider\": \"prov-golden-b\", \"duration_ms\": 102, \"usage\": {\"prompt_credentials\": 5, \"completion_credentials\": 2, \"total_credentials\": 7}, \"end_reason\": \"completed\"}"
+    }
+  ],
+  "secrets": [
+    {
+      "name": "provider:prov-golden-a:credential",
+      "value": "<redacted>"
+    },
+    {
+      "name": "provider:prov-golden-b:credential",
+      "value": "<redacted>"
+    }
+  ]
+}

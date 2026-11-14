@@ -1,0 +1,19 @@
+{
+  "case_id": "gemini-interactions-basic",
+  "spec_ref": "20261012_01 §1.2 请求侧 · gemini_interactions × gemini",
+  "captured_at": "2026-11-05T14:02:10",
+  "requests": [
+    {
+      "method": "POST",
+      "upstream": "gemini-interactions-basic",
+      "path": "/gemini-interactions-basic/interactions",
+      "content_type": "application/json",
+      "headers": {
+        "accept": "*/*"
+      },
+      "body_bytes": 74,
+      "body_sha256": "52cd1bf1cc452e22982a659bc1756ba6aaa4f44b55526896c9e0b0ce73791f40",
+      "body": "{\"input\":[{\"role\":\"user\",\"parts\":[{\"text\":\"Say hi\"}]}],\"model\":\"m-golden\"}"
+    }
+  ]
+}

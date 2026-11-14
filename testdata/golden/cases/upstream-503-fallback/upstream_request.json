@@ -1,0 +1,68 @@
+{
+  "case_id": "upstream-503-fallback",
+  "spec_ref": "03-网关协议与路由 §4 三层重试与回退 · 503 候选链回退",
+  "captured_at": "2026-11-05T14:09:32",
+  "requests": [
+    {
+      "method": "POST",
+      "upstream": "upstream-503-fallback-a",
+      "path": "/upstream-503-fallback-a/v1/chat/completions",
+      "content_type": "application/json",
+      "headers": {
+        "accept": "*/*"
+      },
+      "body_bytes": 68,
+      "body_sha256": "60e04a5e6a57bdccdaa8dbd20613f54c4d1681f8949e3fa763abddf63136510d",
+      "body": "{\"model\":\"m-golden\",\"messages\":[{\"role\":\"user\",\"content\":\"Say hi\"}]}"
+    },
+    {
+      "method": "POST",
+      "upstream": "upstream-503-fallback-a",
+      "path": "/upstream-503-fallback-a/v1/chat/completions",
+      "content_type": "application/json",
+      "headers": {
+        "accept": "*/*"
+      },
+      "body_bytes": 68,
+      "body_sha256": "60e04a5e6a57bdccdaa8dbd20613f54c4d1681f8949e3fa763abddf63136510d",
+      "body": "{\"model\":\"m-golden\",\"messages\":[{\"role\":\"user\",\"content\":\"Say hi\"}]}"
+    },
+    {
+      "method": "POST",
+      "upstream": "upstream-503-fallback-a",
+      "path": "/upstream-503-fallback-a/v1/chat/completions",
+      "content_type": "application/json",
+      "headers": {
+        "accept": "*/*"
+      },
+      "body_bytes": 68,
+      "body_sha256": "60e04a5e6a57bdccdaa8dbd20613f54c4d1681f8949e3fa763abddf63136510d",
+      "body": "{\"model\":\"m-golden\",\"messages\":[{\"role\":\"user\",\"content\":\"Say hi\"}]}"
+    },
+    {
+      "method": "POST",
+      "upstream": "upstream-503-fallback-a",
+      "path": "/upstream-503-fallback-a/v1/chat/completions",
+      "content_type": "application/json",
+      "headers": {
+        "accept": "*/*"
+      },
+      "body_bytes": 68,
+      "body_sha256": "60e04a5e6a57bdccdaa8dbd20613f54c4d1681f8949e3fa763abddf63136510d",
+      "body": "{\"model\":\"m-golden\",\"messages\":[{\"role\":\"user\",\"content\":\"Say hi\"}]}"
+    },
+    {
+      "method": "POST",
+      "upstream": "upstream-503-fallback-b",
+      "path": "/upstream-503-fallback-b/v1/chat/completions",
+      "content_type": "application/json",
+      "headers": {
+        "accept": "*/*"
+      },
+      "body_bytes": 68,
+      "body_sha256": "60e04a5e6a57bdccdaa8dbd20613f54c4d1681f8949e3fa763abddf63136510d",
+      "body": "{\"model\":\"m-golden\",\"messages\":[{\"role\":\"user\",\"content\":\"Say hi\"}]}"
+    }
+  ],
+  "note": "回退环的 body.model 是裸模型名 —— 修复前这里曾是内部选择器(prov-upstream-503-fallback-b/m-golden),真实厂商会回 model not found。回归用例:wr-server/tests/gateway.rs model_chain_fallback_sends_bare_model_to_upstream"
+}

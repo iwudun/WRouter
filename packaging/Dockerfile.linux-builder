@@ -1,0 +1,45 @@
+# =============================================================================
+# WRouter Linux Builder Image v2 — 预装全部构建依赖
+#
+# 基于 wrouter-rpm-builder:v1（Rocky Linux 8.10, glibc 2.28, Node 22,
+# rpm-build, GCC 13）。R7 起 Python 后端退役,后端为 Rust 单二进制(宿主
+# 交叉构建),容器只需承载 icons + build-info + tsc + electron-builder,
+# v2 预装 GUI/桌面构建依赖栈,省掉每次构建时的 dnf 现装。
+# (v2 曾预装 python3.11 + PyInstaller,已随 Python 后端退役移除。)
+#
+# 构建:
+#   docker build -t wrouter-linux-builder:v2 -f packaging/Dockerfile.linux-builder .
+#
+# 使用 v2 构建安装包 (build.mjs 自动选择:缓存中有 v2 直接用,否则首次自动构建):
+#   WROUTER_BUILDER_IMAGE=wrouter-linux-builder:v2 npm run build:linux
+#
+# 缓存策略 (配合持久化缓存卷):
+#   electron-cache-linux  → Electron 二进制缓存 (140MB, 首次 17s, 后续 0s)
+#   本机 node_modules     → npm 包缓存 (已挂载, 0s)
+# =============================================================================
+
+FROM wrouter-rpm-builder:v1
+USER root
+RUN set -ex && \
+    dnf install -y \
+        sqlite-devel openssl-devel libffi-devel \
+        libxml2-devel zlib-devel bzip2-devel readline-devel \
+        ImageMagick \
+        desktop-file-utils shared-mime-info hicolor-icon-theme \
+        libX11 libX11-devel libXcomposite libXcursor libXdamage \
+        libXext libXfixes libXi libXrandr libXrender libXScrnSaver \
+        libXtst libxcb libxkbcommon libxshmfence \
+        libdrm mesa-libEGL mesa-libGL mesa-libgbm \
+        alsa-lib pulseaudio-libs \
+        atk at-spi2-atk at-spi2-core \
+        gtk3 cairo cairo-gobject pango gdk-pixbuf2 \
+        nss nss-util nspr cups-libs libpciaccess \
+        libappindicator-gtk3 \
+        dbus dbus-daemon dbus-libs libnotify \
+        dejavu-sans-fonts dejavu-sans-mono-fonts dejavu-serif-fonts \
+        liberation-fonts google-noto-cjk-fonts-common \
+    && dnf clean all && \
+    fc-cache -f -v 2>/dev/null || true && \
+    mkdir -p /root/.cache/electron-builder
+WORKDIR /build
+CMD ["echo", "WRouter Linux Builder v2 ready."]

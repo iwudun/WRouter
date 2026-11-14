@@ -1,0 +1,10 @@
+{
+  "method": "POST",
+  "path": "/v1/responses",
+  "headers": {},
+  "body": {
+    "model": "prov-openai-responses-stream/m-golden",
+    "input": "Say hi",
+    "stream": true
+  }
+}

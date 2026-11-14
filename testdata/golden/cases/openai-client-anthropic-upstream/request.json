@@ -1,0 +1,14 @@
+{
+  "method": "POST",
+  "path": "/v1/chat/completions",
+  "headers": {},
+  "body": {
+    "model": "prov-openai-client-anthropic-upstream/m-golden",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Say hi"
+      }
+    ]
+  }
+}

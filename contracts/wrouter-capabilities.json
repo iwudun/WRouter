@@ -1,0 +1,200 @@
+{
+  "schema": "wrouter.capabilities",
+  "version": 1,
+  "protocols": [
+    "openai.chat.completions",
+    "openai.responses",
+    "openai.embeddings",
+    "anthropic.messages",
+    "gemini.generateContent",
+    "gemini.streamGenerateContent",
+    "gemini.interactions"
+  ],
+  "managementRpc": [
+    "checkProviderConnectivity",
+    "clearCredentialCooldown",
+    "deleteModelFingerprint",
+    "detectModelFingerprint",
+    "enrollModelFingerprint",
+    "exportData",
+    "exportModelFingerprints",
+    "fetchProviderModels",
+    "getApiKeyLastUsed",
+    "getAppInfo",
+    "getCallLogs",
+    "getConfig",
+    "getGatewayStatus",
+    "getProviderAccountSnapshots",
+    "getProviderCredentialStats",
+    "getRequestLogDetail",
+    "getRequestLogTrace",
+    "getRuntimeControl",
+    "getSavingsStats",
+    "getUpdateStatus",
+    "getUsageStats",
+    "importModelFingerprint",
+    "listModelFingerprints",
+    "probeProviderCandidates",
+    "saveApiKeys",
+    "saveConfig",
+    "setGatewayEnabled",
+    "stopService",
+    "testApiEndpoints",
+    "testProxyPreset"
+  ],
+  "desktopMethods": [
+    "exportData",
+    "getUpdateStatus",
+    "openExternal",
+    "setAppLanguage",
+    "toggleDevTools",
+    "updateCheck",
+    "updateDownload",
+    "updateInstall"
+  ],
+  "desktopMethodsByRuntime": {
+    "tauri": [
+      "exportData",
+      "getUpdateStatus",
+      "openExternal",
+      "setAppLanguage",
+      "toggleDevTools",
+      "updateCheck",
+      "updateDownload",
+      "updateInstall"
+    ]
+  },
+  "deferredMethods": [],
+  "methodStage": {
+    "getProviderAccountSnapshots": {
+      "kind": "ready"
+    },
+    "getProviderCredentialStats": {
+      "kind": "ready"
+    },
+    "getSavingsStats": {
+      "kind": "ready"
+    },
+    "clearCredentialCooldown": {
+      "kind": "ready"
+    },
+    "probeProviderCandidates": {
+      "kind": "ready"
+    },
+    "testApiEndpoints": {
+      "kind": "ready"
+    },
+    "testProxyPreset": {
+      "kind": "ready"
+    },
+    "fetchProviderModels": {
+      "kind": "ready"
+    },
+    "detectModelFingerprint": {
+      "kind": "ready"
+    },
+    "listModelFingerprints": {
+      "kind": "ready"
+    },
+    "enrollModelFingerprint": {
+      "kind": "ready"
+    },
+    "deleteModelFingerprint": {
+      "kind": "ready"
+    },
+    "exportModelFingerprints": {
+      "kind": "ready"
+    },
+    "importModelFingerprint": {
+      "kind": "ready"
+    },
+    "updateCheck": {
+      "kind": "desktop-only"
+    },
+    "updateDownload": {
+      "kind": "desktop-only"
+    },
+    "updateInstall": {
+      "kind": "desktop-only"
+    }
+  },
+  "restEndpoints": [
+    "GET /api/v1/health",
+    "GET /api/v1/capabilities",
+    "GET /api/v1/status",
+    "GET /api/v1/config",
+    "PUT /api/v1/config",
+    "GET /api/v1/config/export",
+    "POST /api/v1/config/import",
+    "GET /api/v1/providers",
+    "PUT /api/v1/providers/{id}",
+    "DELETE /api/v1/providers/{id}",
+    "POST /api/v1/providers/probe",
+    "GET /api/v1/providers/health",
+    "POST /api/v1/providers/health/check",
+    "GET /api/v1/metrics",
+    "GET /api/v1/request-logs",
+    "GET /api/v1/usage",
+    "POST /api/wr/rpc",
+    "GET /api/wr/session",
+    "POST /v1beta/models/{model}:generateContent",
+    "POST /v1beta/models/{model}:streamGenerateContent",
+    "POST /v1/interactions",
+    "POST /v1beta/interactions",
+    "GET /v1/models"
+  ],
+  "protocolConversion": {
+    "engine": "semantic",
+    "strategies": ["native_passthrough", "semantic", "lossy", "unsupported"],
+    "diagnostics": [
+      "dropped_field",
+      "downgraded_content",
+      "regenerated_id",
+      "unmapped_enum",
+      "opaque_preserved",
+      "merged_content"
+    ],
+    "metrics": ["gateway_conversions_total", "gateway_conversion_diagnostics_total", "gateway_conversion_duration_us_sum", "gateway_conversion_duration_us_max"],
+    "notes": "E(2026-10-12): semantic pipeline is the only supported conversion engine (request/response/stream); same-protocol native passthrough and vendor fixup hooks preserved. Strategy/elapsed/diagnostic codes are recorded per attempt in call logs (retry_attempts[].conversion) and in-memory metrics without any payload or secret.",
+    "matrixReference": "内部设计记录《统一语义模型 阶段A 基线与契约》§1（不随开源仓库发布）"
+  },
+  "reliability": {
+    "circuitBreaker": {
+      "persistence": "sqlite",
+      "halfOpen": true,
+      "perProviderOverrides": true
+    },
+    "idempotency": {
+      "persistence": "sqlite",
+      "ttlMsDefault": 300000,
+      "maxEntriesDefault": 1000
+    },
+    "concurrency": {
+      "perProviderSemaphore": true,
+      "queueTimeoutMsDefault": 0
+    },
+    "precheck": {
+      "rateLimit": [
+        "rpm",
+        "rpd",
+        "tpm",
+        "tpd",
+        "ipm"
+      ],
+      "budget": "maxCostUsd"
+    },
+    "healthScheduler": {
+      "persistence": "sqlite",
+      "intervalMsDefault": 30000
+    },
+    "metrics": {
+      "json": true,
+      "prometheus": true
+    }
+  },
+  "ports": {
+    "gateway": 3460,
+    "management": 3462,
+    "proxy": 3463
+  }
+}

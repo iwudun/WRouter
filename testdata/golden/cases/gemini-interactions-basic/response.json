@@ -1,0 +1,30 @@
+{
+  "id": "int-up-1",
+  "object": "response",
+  "status": "completed",
+  "output": [
+    {
+      "type": "message",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "output_text",
+          "text": "hello from interaction"
+        },
+        {
+          "type": "function_call",
+          "id": "call-1",
+          "name": "lookup",
+          "arguments": "{\"q\": \"hi\"}"
+        }
+      ]
+    }
+  ],
+  "usage": {
+    "input_tokens": 2,
+    "output_tokens": 3,
+    "total_tokens": 5,
+    "cache_read_tokens": 0,
+    "cache_write_tokens": 0
+  }
+}

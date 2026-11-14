@@ -1,0 +1,9 @@
+{
+  "reliability": {
+    "upstreamCircuitBreaker": { "failure_threshold": 0, "cooldownMs": "60000" },
+    "upstreamConcurrency": { "maxInFlightPerProvider": 0 },
+    "idempotency": { "ttlMs": 500, "header_name": null },
+    "providerHealthCheck": { "intervalMs": 0, "initialDelayMs": -5, "timeoutMs": 100 },
+    "precheck": { "enabled": 1, "rateLimitRules": [{ "metric": "rpm", "limit": 60 }, "junk-entry"], "budgetMaxCostUsd": "-1.5" }
+  }
+}

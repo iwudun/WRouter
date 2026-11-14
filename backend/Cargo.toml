@@ -1,0 +1,92 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/wr-domain",
+    "crates/wr-app",
+    "crates/wr-infra",
+    "crates/wr-server",
+    "crates/wr-cli",
+    "crates/wr-test-utils",
+]
+
+[workspace.package]
+edition = "2024"
+license = "MIT"
+publish = false
+# crate 版本号不作为对外版本来源;运行时版本一律来自构建时注入的 WR_VERSION
+# (取自根 package.json,见 packaging/build-rust.sh 与 scripts/check-rust.sh)。
+version = "0.0.0"
+
+[workspace.dependencies]
+# ---- 内部 crate(依赖方向见 README.md 的分层图) ----
+wr-domain = { path = "crates/wr-domain" }
+wr-app = { path = "crates/wr-app" }
+wr-infra = { path = "crates/wr-infra" }
+wr-server = { path = "crates/wr-server" }
+wr-test-utils = { path = "crates/wr-test-utils" }
+
+# ---- 异步运行时与 Web 框架(方案 #14 D1: axum + tokio) ----
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "signal", "net", "time", "sync"] }
+axum = { version = "0.8", features = ["json"] }
+
+# ---- 序列化 ----
+# preserve_order:Python dict 保序,上游 JSON 的键序会经 relay 重新序列化
+# 回客户端(parity 黄金样本逐字段比对),必须镜像插入序而非字母序。
+serde = { version = "1", features = ["derive"] }
+serde_json = { version = "1", features = ["preserve_order"] }
+
+# ---- 上游 HTTP 客户端(方案 #14 D2: reqwest + rustls;R2.3) ----
+# default-features off 关闭 native-tls;gzip/deflate/brotli 对齐 httpx 的
+# 透明解压行为(relay 需要解压后的字节才能解析 SSE);socks 对齐系统代理
+# 场景(Python 侧因 httpx 缺 socks extra 而防御性剥离,reqwest 原生支持
+# 则保留,见 R2 完成记录)。
+reqwest = { version = "0.12", default-features = false, features = ["rustls-tls", "gzip", "deflate", "brotli", "socks", "stream"] }
+
+# ---- SQLite 只读配置源(R2 前置:parity 工具链经 Python SqliteStore 播种) ----
+rusqlite = { version = "0.32", features = ["bundled"] }
+
+# ---- 正则(协议路径表 / Claude Desktop 模型名解码,纯函数) ----
+regex = "1"
+
+# ---- 内置模型指纹参考库解压(方案 20261030_01 R9) ----
+# 只在 wr-server 的资产加载器一处使用(内置库是编译期打包的 gzip 资产)。
+# 版本已在 Cargo.lock 锁定为 1.1.10 且 registry 缓存中存在 → 离线可解,
+# 不需要联网拉取;wr-domain 纯度守护不涉及本依赖(域层不碰资产)。
+flate2 = "1.1.10"
+
+# ---- SHA-256(R3 provider_runtime_id 派生,镜像 Python hashlib;纯计算,不违反 domain 纯度守护) ----
+sha2 = "0.10"
+
+# ---- 流组合子(转发管线的字节流管道) ----
+futures-util = { version = "0.3", default-features = false, features = ["std"] }
+
+# ---- 日志(方案 #14 R1.6: tracing 管道,格式对齐 Python LOG_FORMAT) ----
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["fmt", "env-filter"] }
+chrono = { version = "0.4", default-features = false, features = ["clock"] }
+
+# ---- CLI(方案 #14 R1.12: 子命令框架对齐 Python cli.py) ----
+clap = { version = "4", features = ["derive"] }
+
+# ---- 错误处理 ----
+anyhow = "1"
+thiserror = "2"
+
+# ---- 端口 trait 的 async 取舍(方案 #14 D14 决策): 全仓统一 async-trait ----
+# 需要 dyn 对象安全以支持 wr-server 装配注入与测试替身;RPITIT(async fn in
+# trait)至今不支持 dyn 分发。后续所有端口 trait 必须使用本依赖,不得混用。
+async-trait = "0.1"
+
+# ---- 其他 ----
+uuid = { version = "1", features = ["v4"] }
+# R4.10 MITM 证书链生成(替代 Python cryptography;指纹不要求逐字节一致)。
+rcgen = { version = "0.13", features = ["pem", "x509-parser"] }
+sha1 = "0.10"
+x509-parser = "0.16"
+time = "0.3"
+
+# ---- 测试专用(tower-util 供 axum oneshot 测试) ----
+tower = { version = "0.5", features = ["util"] }
+http-body-util = "0.1"
+# mock 上游(R2.8:认证/透传/超时/5xx 单元测试)
+wiremock = "0.6"

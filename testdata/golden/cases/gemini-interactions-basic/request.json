@@ -1,0 +1,9 @@
+{
+  "method": "POST",
+  "path": "/v1/interactions",
+  "headers": {},
+  "body": {
+    "model": "prov-gemini-interactions-basic/m-golden",
+    "input": "Say hi"
+  }
+}

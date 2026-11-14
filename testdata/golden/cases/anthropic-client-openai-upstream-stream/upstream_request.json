@@ -1,0 +1,19 @@
+{
+  "case_id": "anthropic-client-openai-upstream-stream",
+  "spec_ref": "20261012_01 §1.4 流式 relay · anthropic × openai",
+  "captured_at": "2026-11-05T14:01:57",
+  "requests": [
+    {
+      "method": "POST",
+      "upstream": "anthropic-client-openai-upstream-stream",
+      "path": "/anthropic-client-openai-upstream-stream/v1/chat/completions",
+      "content_type": "application/json",
+      "headers": {
+        "accept": "*/*"
+      },
+      "body_bytes": 99,
+      "body_sha256": "091b554255dc89400461ce01eed476d6c0b2c8d48937e1ff044401ad3b8991b8",
+      "body": "{\"model\":\"m-golden\",\"messages\":[{\"role\":\"user\",\"content\":\"Say hi\"}],\"max_tokens\":256,\"stream\":true}"
+    }
+  ]
+}

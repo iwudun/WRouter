@@ -1,0 +1,11 @@
+# Docker 构建上下文瘦身(Dockerfile.runtime 的 context = 仓库根)。
+# node_modules / target / venv 等目录动辄数 GB,不进上下文。
+node_modules
+**/node_modules
+backend/target
+backend/dist
+backend/.venv
+backend/build
+build/dist
+dist
+.git

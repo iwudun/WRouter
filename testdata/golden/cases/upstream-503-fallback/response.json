@@ -1,0 +1,16 @@
+{
+  "id": "mock-fallback",
+  "object": "chat.completion",
+  "created": 0,
+  "model": "m-golden",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "mock"
+      },
+      "finish_reason": "stop"
+    }
+  ]
+}

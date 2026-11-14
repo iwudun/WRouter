@@ -1,0 +1,12 @@
+{
+  "description": "OpenAI Chat upstream stream that carries usage in the terminal chunk (stream_options.include_usage behavior). Pre-P1 the gateway dropped stream usage entirely (forward_stream wrote status:200 with no tokens). This fixture pins that usage is now captured from the terminal chunk.",
+  "client_protocol": "openai",
+  "upstream_protocol": "openai",
+  "upstream_sse": [
+    "data: {\"id\":\"c1\",\"model\":\"m\",\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"hello\"},\"finish_reason\":null}]}",
+    "data: {\"id\":\"c1\",\"model\":\"m\",\"choices\":[{\"index\":0,\"delta\":{},\"finish_reason\":\"stop\"}],\"usage\":{\"prompt_tokens\":7,\"completion_tokens\":3,\"total_tokens\":10}}",
+    "data: [DONE]"
+  ],
+  "expected_text": "hello",
+  "expected_usage": {"input_tokens": 7, "output_tokens": 3, "total_tokens": 10}
+}

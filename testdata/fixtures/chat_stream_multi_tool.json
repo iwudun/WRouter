@@ -1,0 +1,19 @@
+{
+  "description": "OpenAI Chat Completions upstream stream with TWO parallel tool calls (index 0 and 1). Pre-P1 the legacy _transform_stream_line hard-coded index:0 for every call, corrupting the stream. This fixture pins the corrected behavior: each call keeps its own index and arguments are accumulated independently.",
+  "client_protocol": "openai",
+  "upstream_protocol": "openai",
+  "upstream_sse": [
+    "data: {\"id\":\"c1\",\"model\":\"m\",\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"tool_calls\":[{\"index\":0,\"id\":\"call_a\",\"type\":\"function\",\"function\":{\"name\":\"weather\"}}]},\"finish_reason\":null}]}",
+    "data: {\"id\":\"c1\",\"model\":\"m\",\"choices\":[{\"index\":0,\"delta\":{\"tool_calls\":[{\"index\":1,\"id\":\"call_b\",\"type\":\"function\",\"function\":{\"name\":\"time\"}}]},\"finish_reason\":null}]}",
+    "data: {\"id\":\"c1\",\"model\":\"m\",\"choices\":[{\"index\":0,\"delta\":{\"tool_calls\":[{\"index\":0,\"function\":{\"arguments\":\"{\\\"city\\\":\"}}]},\"finish_reason\":null}]}",
+    "data: {\"id\":\"c1\",\"model\":\"m\",\"choices\":[{\"index\":0,\"delta\":{\"tool_calls\":[{\"index\":1,\"function\":{\"arguments\":\"{\\\"tz\\\":\"}}]},\"finish_reason\":null}]}",
+    "data: {\"id\":\"c1\",\"model\":\"m\",\"choices\":[{\"index\":0,\"delta\":{\"tool_calls\":[{\"index\":0,\"function\":{\"arguments\":\"\\\"Sh\\\"}\"}}]},\"finish_reason\":null}]}",
+    "data: {\"id\":\"c1\",\"model\":\"m\",\"choices\":[{\"index\":0,\"delta\":{\"tool_calls\":[{\"index\":1,\"function\":{\"arguments\":\"\\\"UTC\\\"}\"}}]},\"finish_reason\":\"tool_calls\"}],\"usage\":{\"prompt_tokens\":10,\"completion_tokens\":5,\"total_tokens\":15}}",
+    "data: [DONE]"
+  ],
+  "expected_tool_calls": {
+    "0": {"name": "weather", "arguments": "{\"city\":\"Sh\"}"},
+    "1": {"name": "time", "arguments": "{\"tz\":\"UTC\"}"}
+  },
+  "expected_usage": {"input_tokens": 10, "output_tokens": 5, "total_tokens": 15}
+}

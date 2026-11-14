@@ -1,0 +1,18 @@
+{
+  "description": "OpenAI Responses NATIVE upstream stream (single tool call) relayed to an OpenAI Responses client. Regression 2026-11-06: `response.output_item.done` repeats the function_call item; it must NOT open the call a second time and must NOT re-send the full arguments. Old behaviour sent two opening frames plus the arguments twice -> the client accumulated them twice -> tool arguments were polluted into `{}` (ZCode: 8 sub-agents + 3 Bash calls all failed).",
+  "client_protocol": "openai_responses",
+  "upstream_protocol": "openai",
+  "upstream_sse": [
+    "event: response.created\ndata: {\"type\":\"response.created\",\"response\":{\"id\":\"resp_2\",\"model\":\"m\"}}",
+    "event: response.output_item.added\ndata: {\"type\":\"response.output_item.added\",\"output_index\":0,\"item\":{\"id\":\"fc_1\",\"type\":\"function_call\",\"status\":\"in_progress\",\"name\":\"Bash\",\"call_id\":\"call_1\",\"arguments\":\"\"}}",
+    "event: response.function_call_arguments.delta\ndata: {\"type\":\"response.function_call_arguments.delta\",\"output_index\":0,\"item_id\":\"fc_1\",\"delta\":\"{\\\"command\\\":\\\"ls\\\"}\"}",
+    "event: response.function_call_arguments.done\ndata: {\"type\":\"response.function_call_arguments.done\",\"output_index\":0,\"item_id\":\"fc_1\",\"arguments\":\"{\\\"command\\\":\\\"ls\\\"}\"}",
+    "event: response.output_item.done\ndata: {\"type\":\"response.output_item.done\",\"output_index\":0,\"item\":{\"id\":\"fc_1\",\"type\":\"function_call\",\"status\":\"completed\",\"name\":\"Bash\",\"call_id\":\"call_1\",\"arguments\":\"{\\\"command\\\":\\\"ls\\\"}\"}}",
+    "event: response.completed\ndata: {\"type\":\"response.completed\",\"response\":{\"id\":\"resp_2\",\"model\":\"m\",\"status\":\"completed\",\"output\":[],\"usage\":{\"input_tokens\":3,\"output_tokens\":1,\"total_tokens\":4}}}"
+  ],
+  "expected_text": "",
+  "expected_tool_calls": {
+    "0": {"name": "Bash", "arguments": "{\"command\":\"ls\"}"}
+  },
+  "expected_usage": {"input_tokens": 3, "output_tokens": 1, "total_tokens": 4}
+}

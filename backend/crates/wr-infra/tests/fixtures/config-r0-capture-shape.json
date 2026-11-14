@@ -1,0 +1,15 @@
+{
+  "version": 2,
+  "preferredProvider": "",
+  "Providers": [
+    {
+      "id": "gold-1",
+      "name": "gold-1",
+      "api_base_url": "http://127.0.0.1:3999/gold-1",
+      "protocol": "openai",
+      "models": ["m-golden"],
+      "api_key": "upstream-key"
+    }
+  ],
+  "APIKEYS": []
+}

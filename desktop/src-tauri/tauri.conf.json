@@ -1,0 +1,45 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "WRouter",
+  "version": "0.2.5",
+  "identifier": "com.wrouter.desktop",
+  "build": {
+    "devUrl": "http://localhost:5280",
+    "beforeBuildCommand": "node build-frontend.mjs",
+    "frontendDist": "../../frontend/dist"
+  },
+  "app": {
+    "windows": [],
+    "withGlobalTauri": true,
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": ["nsis"],
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "resources": {
+      "../../frontend/dist": "frontend",
+      "../../contracts/wrouter-capabilities.json": "wrouter-capabilities.json"
+    },
+    "windows": {
+      "nsis": {
+        "installMode": "currentUser",
+        "languages": ["SimpChinese", "English"],
+        "displayLanguageSelector": true,
+        "startMenuFolder": "WRouter",
+        "installerIcon": "icons/icon.ico",
+        "uninstallerIcon": "icons/icon.ico",
+        "installerHooks": "../../packaging/wrouter-nsis-hooks.nsh"
+      },
+      "bundleVCRuntime": true
+    }
+  }
+}

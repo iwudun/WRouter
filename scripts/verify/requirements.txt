@@ -1,0 +1,8 @@
+# scripts/verify 的已验证依赖版本(2026-11-07,Windows/Python 3.12 实测)。
+# 安装:python -m pip install -r scripts/verify/requirements.txt
+# 只服务本地回环 mock/回放/SDK 冒烟,运行时后端不依赖这些包。
+fastapi==0.140.0
+uvicorn==0.51.0
+httpx==0.28.1
+openai==3.46.0
+anthropic==2.6.0

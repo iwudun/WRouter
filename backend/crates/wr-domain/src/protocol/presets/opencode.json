@@ -1,0 +1,7 @@
+{
+  "id": "opencode",
+  "label": "OpenCode",
+  "compatibleProtocols": ["openai", "anthropic"],
+  "headers": { "user-agent": "opencode/1.18.3" },
+  "query": {}
+}

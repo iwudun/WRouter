@@ -1,0 +1,45 @@
+[[permission]]
+identifier = "allow-wr-desktop"
+description = """
+WRouter 桌面方法(Tauri 壳 ↔ 管理面 webview 桥接层)。
+
+与 Electron 壳的 IPC_CHANNEL_MAP 一一对应(contracts/wrouter-capabilities.json
+的 desktopMethods),由 scripts/validate-capabilities.mjs 做三方一致校验。
+"""
+commands.allow = [
+  "wr_open_external",
+  "wr_toggle_devtools",
+  "wr_set_app_language",
+  "wr_export_data",
+  "wr_get_update_status",
+  "wr_update_check",
+  "wr_update_download",
+  "wr_update_install",
+]
+
+# 20261102_01 P4-4:窗口层命令(壳 chrome)。
+#
+# 这批**不属于** window.wr 的 8 个桌面方法面 —— 那是跨运行时公共面;
+# 窗口控制是 Tauri 壳自绘标题栏所需的私有通道(Electron 用系统绘制的
+# titleBarOverlay,没有对应 IPC)。
+#
+# 前端通过 window.__TAURI_INTERNALS__.invoke() 直调,不走 window.wr,
+# 因此契约(contracts/wrouter-capabilities.json)保持 8 项不变。
+[[permission]]
+identifier = "allow-wr-window"
+description = """
+WRouter 窗口层命令(20261102_01 P4-4 / P4-5)。
+
+- wr_window_minimize / wr_window_toggle_maximize / wr_window_close /
+  wr_window_is_maximized —— 自定义标题栏的 min/max/close 三键
+- wr_window_apply_theme —— 标题栏配色随应用主题同步
+- wr_sync_launch_at_login —— 开机自启开关立即生效
+"""
+commands.allow = [
+  "wr_window_minimize",
+  "wr_window_toggle_maximize",
+  "wr_window_close",
+  "wr_window_is_maximized",
+  "wr_window_apply_theme",
+  "wr_sync_launch_at_login",
+]

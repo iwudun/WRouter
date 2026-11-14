@@ -1,0 +1,15 @@
+{
+  "name": "wrouter-desktop-tauri",
+  "version": "0.2.5",
+  "private": true,
+  "description": "WRouter Tauri v2 desktop shell (Rust app dir, backend runs in-process)",
+  "scripts": {
+    "dev": "tauri dev",
+    "build": "tauri build --target x86_64-pc-windows-msvc",
+    "build:no-bundle": "tauri build --target x86_64-pc-windows-msvc --no-bundle",
+    "tauri": "tauri"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.9.0"
+  }
+}

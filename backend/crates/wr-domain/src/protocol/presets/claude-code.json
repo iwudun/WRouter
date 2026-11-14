@@ -1,0 +1,17 @@
+{
+  "id": "claude-code",
+  "label": "Claude Code",
+  "compatibleProtocols": ["anthropic"],
+  "headers": {
+    "user-agent": "claude-cli/2.1.123 (external, cli)",
+    "x-app": "cli",
+    "anthropic-version": "2023-06-01",
+    "x-stainless-lang": "js",
+    "x-stainless-package-version": "0.81.0",
+    "x-stainless-runtime": "node",
+    "x-stainless-retry-count": "0",
+    "x-stainless-timeout": "600",
+    "anthropic-beta": "claude-code-20250219,interleaved-thinking-2025-05-14,context-1m-2025-08-07,context-management-2025-06-27,structured-outputs-2025-12-15,web-search-2025-03-05,advanced-tool-use-2025-11-20,tool-search-tool-2025-10-19,effort-2025-11-24,prompt-caching-scope-2026-01-05,thinking-token-count-2026-05-13"
+  },
+  "query": { "messages": "beta=true" }
+}

@@ -1,0 +1,43 @@
+# WRouter 网关运行时镜像 (方案 #14 R6.5)。
+#
+# 多阶段构建: Stage 1 用 cargo-zigbuild 产 musl 静态单二进制;
+# Stage 2 alpine 基底仅携带二进制 + CA 证书(上游 HTTPS 需要)。
+# 端口分配 C1 不变: 3460 Gateway / 3461 迁移期兼容 / 3462 管理 / 3463 代理。
+#
+# 构建与运行:
+#   docker build -f packaging/Dockerfile.runtime -t wrouter-gateway:latest .
+#   docker run --rm -p 3460:3460 -p 3462:3462 -v wrouter-data:/data wrouter-gateway:latest
+#   curl http://127.0.0.1:3460/health            # 网关面
+#   curl http://127.0.0.1:3462/api/v1/health     # 管理面
+
+FROM ghcr.io/rust-cross/cargo-zigbuild:0.23.3 AS builder
+# rustc 版本由 backend/rust-toolchain.toml 锁定(1.98.0),rustup 自动安装。
+WORKDIR /build
+# 版本注入(R1.5 约定:唯一来源 = 根 package.json;builder 内无 node,用 sed 提取)
+COPY package.json /tmp/pkg/package.json
+COPY backend ./backend
+# BuildKit 缓存挂载:cargo registry 与 target 跨构建复用(二次构建增量)。
+RUN --mount=type=cache,target=/usr/local/cargo/registry \
+    --mount=type=cache,target=/build/backend/target \
+    cd backend \
+ && export WR_VERSION="$(sed -n 's/.*"version": *"\([^"]*\)".*/\1/p' /tmp/pkg/package.json | head -1)" \
+ && echo "WR_VERSION=$WR_VERSION" \
+ && rustup target add x86_64-unknown-linux-musl \
+ && cargo zigbuild --release --target x86_64-unknown-linux-musl -p wr-cli \
+ && cp target/x86_64-unknown-linux-musl/release/wr /wr
+
+FROM alpine:3.20
+RUN apk add --no-cache ca-certificates tzdata \
+ && addgroup -S wrouter && adduser -S -G wrouter wrouter \
+ && mkdir -p /data && chown wrouter:wrouter /data
+COPY --from=builder /wr /usr/local/bin/wr-backend
+USER wrouter
+ENV WROUTER_DATA_DIR=/data \
+    WROUTER_HOST=0.0.0.0 \
+    WROUTER_GATEWAY_PORT=3460 \
+    WROUTER_CORE_PORT=3461 \
+    WROUTER_WEB_PORT=3462 \
+    WROUTER_PROXY_PORT=3463
+EXPOSE 3460 3461 3462 3463
+VOLUME ["/data"]
+ENTRYPOINT ["/usr/local/bin/wr-backend", "serve"]

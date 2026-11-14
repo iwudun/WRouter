@@ -1,0 +1,54 @@
+{
+  "tool": "events_parity",
+  "run_at": "2026-08-30T12:54:26",
+  "python": {
+    "status": 200,
+    "problems": [],
+    "non_heartbeat": [
+      [
+        "log-appended",
+        {
+          "status": 200
+        }
+      ],
+      [
+        "usage-updated",
+        {
+          "apiKeyId": "key-1"
+        }
+      ],
+      [
+        "config-changed",
+        {
+          "scope": "config"
+        }
+      ]
+    ]
+  },
+  "rust": {
+    "status": 200,
+    "problems": [],
+    "non_heartbeat": [
+      [
+        "log-appended",
+        {
+          "status": 200
+        }
+      ],
+      [
+        "usage-updated",
+        {
+          "apiKeyId": "key-1"
+        }
+      ],
+      [
+        "config-changed",
+        {
+          "scope": "config"
+        }
+      ]
+    ]
+  },
+  "match": true,
+  "problems": []
+}
