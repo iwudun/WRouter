@@ -47,6 +47,7 @@
 | [L-030](#l-030) | 分析记录里的「根因编号」不等于实际可触发的路径 | 1 | — |
 | [L-031](#l-031) | 缓存值必须与读取路径的表示一致，有状态引用不进缓存 | 1 | — |
 | [L-032](#l-032) | Windows 上 `child.kill()` 杀不掉 npx 底下的真实进程 | 1 | — |
+| [L-033](#l-033) | 集成测试共用固定临时目录，并行时撞 SQLite 锁 | 1 | — |
 
 ---
 
@@ -358,3 +359,12 @@
 - **why**：2026-11-08 排查 `npm run dev` 起不来：5281/5282 上残留着前几次 dev 的 vite，父进程是仍活着的 `cmd.exe`/`npx`，正是旧代码在 Tauri 退出时 `fe.kill()` 只杀包装层留下的。随后单靠扩大端口候选只会让每次中断多留一个孤儿，最终耗尽 5280–5285。
 - **证据**：seen 1（2026-11-08，`scripts/dev.mjs` 退出清理；实测 taskkill /T 后 5280 无监听、无残留 node）。
 - **应用**：任何 Windows 上通过 `shell:true`/`npx`/`cargo run` 启动的开发编排脚本；退出路径必须覆盖正常退出、SIGINT/SIGTERM/SIGHUP/SIGBREAK 与异常退出。
+
+### L-033
+
+**集成测试共用固定临时目录，并行时撞 SQLite 锁**
+
+- **规则**：集成测试的 `data_dir` / `config_dir` 必须唯一化 —— 用「进程 id + 递增序号」或 `tag + pid`，不要写死 `temp_dir().join("xxx-test-data")`。
+- **why**：2026-11-14 —— `tests/health.rs` 的 `test_settings()` 让三个测试共用 `wr-server-test-data`，CI 上并行执行同时打开同一个 SQLite 文件，在 `PRAGMA journal_mode=WAL` 阶段争抢锁，报 `Storage("pragma failed: database is locked")`，`unknown_route_is_404` 与 `management_health_matches_python_shape` 偶发失败（`-p wr-server --test health`）。本地 CPU 并发低，前两次 CI 都通过，第三次才暴露，一度被误判成网络抖动去重跑。
+- **证据**：seen 1（2026-11-14，run 43609690913 日志；修复见 `fix(test): health 测试改用独立临时目录`）。
+- **应用**：任何新建的集成测试、任何在测试里 `SqliteStore::open` 或写配置文件的地方。`gateway/common.rs` 与 `routing.rs` 是靠调用点覆盖 `settings.data_dir` 才没踩，新代码不要依赖这种隐式约定。
