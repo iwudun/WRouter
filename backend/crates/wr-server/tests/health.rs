@@ -4,6 +4,7 @@
 //! `wr-server/tests/`;R2 的黄金样本 parity 也挂在这里)。
 
 use std::sync::Arc;
+use std::sync::atomic::{AtomicU64, Ordering};
 
 use axum::body::Body;
 use axum::http::{Request, StatusCode};
@@ -32,7 +33,18 @@ async fn test_gateway_router() -> axum::Router {
     wr_server::gateway_router(settings, deps)
 }
 
+/// 每次调用分配**独立**的临时目录。
+///
+/// 多个测试共用同一目录会打开同一个 SQLite 文件,并行执行时在
+/// `PRAGMA journal_mode=WAL` 阶段争抢锁,CI 上表现为
+/// `database is locked` 的偶发失败。
 fn test_settings() -> Settings {
+    static NEXT_DIR: AtomicU64 = AtomicU64::new(0);
+    let root = std::env::temp_dir().join(format!(
+        "wr-server-test-{}-{}",
+        std::process::id(),
+        NEXT_DIR.fetch_add(1, Ordering::Relaxed)
+    ));
     Settings {
         app_name: "WRouter".to_owned(),
         version: wr_server::VERSION.to_owned(),
@@ -40,8 +52,8 @@ fn test_settings() -> Settings {
         gateway_port: 3460,
         web_port: 3462,
         proxy_port: 3463,
-        data_dir: std::env::temp_dir().join("wr-server-test-data"),
-        config_dir: std::env::temp_dir().join("wr-server-test-config"),
+        data_dir: root.join("data"),
+        config_dir: root.join("config"),
         auth_token: "test-token".to_owned(),
         parent_pid: None,
         ready_file: None,
