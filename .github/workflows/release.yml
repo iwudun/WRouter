@@ -40,22 +40,30 @@ jobs:
         with:
           workspaces: desktop/src-tauri
 
-      # 根 package.json 没有依赖，npm ci 不会建出 node_modules/，
-      # 而 scripts/build.mjs 的预检要求它存在，故显式创建空目录。
       - name: Install dependencies
         run: |
           npm ci
           npm --prefix frontend ci
           npm --prefix desktop ci
-          New-Item -ItemType Directory node_modules -Force | Out-Null
 
+      - name: Read version
+        id: ver
+        shell: bash
+        run: echo "version=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
+
+      # 直接调 tauri CLI，不经 scripts/build-desktop.mjs：后者会先跑
+      # packaging/fetch-tauri-nsis.ps1 预置 NSIS，该脚本在 runner 上
+      # 取不到 Get-FileHash 而中断；tauri 自身会按需下载 NSIS 工具链。
       - name: Build NSIS installer
-        run: npm run build:win
+        working-directory: desktop
+        env:
+          WR_VERSION: ${{ steps.ver.outputs.version }}
+        run: npx tauri build --target x86_64-pc-windows-msvc
 
       - uses: actions/upload-artifact@v4
         with:
           name: windows-installer
-          path: build/dist/**/win/*.exe
+          path: desktop/src-tauri/target/x86_64-pc-windows-msvc/release/bundle/nsis/*.exe
           if-no-files-found: error
 
   linux:
@@ -76,11 +84,21 @@ jobs:
         with:
           targets: x86_64-unknown-linux-musl
 
+      # build-rust.sh 用 `cargo zigbuild` 交叉编译 musl 静态二进制，
+      # 需要 cargo-zigbuild 子命令与 zig 本体。
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-zigbuild
+
+      - name: Install zig
+        run: |
+          python3 -m pip install --user ziglang
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
       - uses: Swatinem/rust-cache@v2
         with:
           workspaces: backend
 
-      # 后端交叉编译到 musl 需要 musl-gcc。
       - name: Install musl toolchain
         run: |
           sudo apt-get update
