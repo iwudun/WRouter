@@ -38,12 +38,12 @@ fi
 IMAGE="${WROUTER_BUILDER_IMAGE:-wrouter-linux-builder:v2}"
 DRY_RUN=false
 
-# Allow the caller (scripts/build.mjs) to place artifacts under
-# build/dist/<stamp>/linux/ instead of the default dist/.
-# build.mjs passes WROUTER_BUILD_STAMP (a plain timestamp string, no path) to
-# avoid Windows/Unix path conversion issues with Docker volume mounts.
-if [ -n "${WROUTER_BUILD_STAMP:-}" ]; then
-  DIST_DIR="$PROJECT_ROOT/build/dist/$WROUTER_BUILD_STAMP/linux"
+# 调用方(scripts/build.mjs)可把产物放到 build/dist/release-v<版本>/ ,
+# 与 Windows 产物同目录;不传则落到默认 dist/。
+# build.mjs 只传目录名(纯字符串,不含路径),避免 Docker 卷在 Git Bash 下
+# 做 Windows/Unix 路径转换。
+if [ -n "${WROUTER_RELEASE_DIR:-}" ]; then
+  DIST_DIR="$PROJECT_ROOT/build/dist/$WROUTER_RELEASE_DIR"
 else
   DIST_DIR="$PROJECT_ROOT/dist"
 fi

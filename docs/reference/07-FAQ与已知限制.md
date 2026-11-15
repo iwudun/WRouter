@@ -74,7 +74,7 @@ AppImage 已下线(纯后端无对应形态);安装包为 `wrouter-<ver>-1.el8.x
 - **和 Electron 的关系**:**Electron 壳已退场**(`electron/` 目录已删除),Windows 侧 Tauri 是唯一桌面壳,Linux 侧无桌面壳。
 - **后端同进程**:Tauri 壳不 spawn `wr-backend` 子进程,后端跑在壳内的**独立线程 + 独立 tokio runtime**上(依赖 `wr-server` 的 path 依赖)。因此 Tauri dev 会**独占 3462/3460** → 别同时跑第二个壳实例。
 - **端口 3462 被占用**:多半是另一个后端实例(systemd 服务 / 残留的壳进程)在跑。先停掉再起 Tauri。
-- **dev 数据目录**:debug 构建下数据目录重定向到 `<repo>/.dev/user-data/data`,**不碰** `%APPDATA%\WRouter\data`;发布构建才用生产目录(见 01 §5)。
+- **dev 数据目录**:debug 与发布构建共用 `%APPDATA%\WRouter\data`(见 01 §5);要隔离测试数据用 `WROUTER_DATA_DIR` 覆盖。
 - **已知限制**:开发机**已装 MSVC 工具链**(VS Build Tools 2022 17.14.44 / MSVC 14.44 / Windows SDK 10.0.26100 / `rustup target add x86_64-pc-windows-msvc`)。WebView2 走**动态装载**,因此链接了 webview2 的 **test harness 二进制在 GNU 工具链下起不来**(0xC0000135 / 0xC0000139);**可执行文件本身不受影响**。纯逻辑单测已拆到独立测试目标 `--test pure_logic` 规避(16 例);**msvc target 下该问题不复现**。**桌面壳默认 target 就是 msvc**(`desktop/src-tauri/.cargo/config.toml`,只影响这个独立工程,后端 workspace 仍是 GNU 宿主)。
 - **NSIS 工具链**:`tauri build` 要从 github.com 下载 NSIS(本机 github.com 不达)→ 先跑 `packaging/fetch-tauri-nsis.ps1`(走镜像 + SHA1 校验),之后 `tauri build` 全程离线。
 - **自动更新**:不接更新通道,设置页只读展示「自动更新暂不可用」,升级需手动下载安装包。

@@ -183,12 +183,10 @@ async fn health_ok(web_port: u16) -> bool {
 /// - **D4**:只监听回环 `127.0.0.1`(与 systemd 服务一致)。
 /// - **P1**:开启静态托管 —— 窗口加载 `http://127.0.0.1:3462/` 时需要
 ///   SPA 资源与 `/api/wr/session` 令牌。
-/// - **数据目录**:
-///   - **开发态**(`cargo run` / debug 构建)→ `<repo_root>/.dev/user-data/data`
-///     (见 [`dev_data_dir`]);否则会直接读写**生产数据目录**,
-///     既加载不到仓库里的开发数据,又会把开发产物写进用户真实数据。
-///   - **发布态** → 与 Electron 壳保持同一约定(Windows `%APPDATA%\WRouter\data`,
-///     Linux `~/.wrouter`),否则双轨并存期用户会看到「配置消失」。
+/// - **数据目录**:不再区分开发态与运行态,统一使用运行态目录 ——
+///   与 Electron 壳保持同一约定(Windows `%APPDATA%\WRouter\data`,
+///   Linux `~/.wrouter`),否则双轨并存期用户会看到「配置消失」。
+///   需要隔离时用 `WROUTER_DATA_DIR` 显式覆盖。
 /// - **同进程**:没有父进程探活、没有 ready 文件(Electron 宿主链路专用)。
 pub fn build_settings() -> Settings {
     // 令牌按数据目录持久化(Settings::from_env 内部解析),因此数据目录必须
@@ -217,15 +215,9 @@ pub fn build_settings() -> Settings {
 
 /// 桌面壳的默认数据目录。
 ///
-/// - **开发态**(debug 构建)→ [`dev_data_dir`]:`<repo_root>/.dev/user-data/data`。
-/// - **发布态** → 与 Electron 壳等价的路径约定(Windows `%APPDATA%\WRouter\data`,
-///   macOS `~/Library/Application Support/WRouter/data`,Linux `~/.wrouter`)。
+/// 不区分构建类型,统一使用运行态路径(Windows `%APPDATA%\WRouter\data`,
+/// macOS `~/Library/Application Support/WRouter/data`,Linux `~/.wrouter`)。
 fn default_data_dir() -> PathBuf {
-    if cfg!(debug_assertions) {
-        if let Some(dev_dir) = dev_data_dir() {
-            return dev_dir;
-        }
-    }
     production_data_dir()
 }
 
@@ -233,7 +225,6 @@ fn default_data_dir() -> PathBuf {
 ///
 /// 约定与旧 Electron 壳一致:
 /// - `WROUTER_LOG_DIR` 显式覆盖;
-/// - 开发态 → `<repo_root>/.dev/logs`(旧 `backend.log` 原地延续);
 /// - Windows / macOS 发布态 → 数据目录的同级 `logs/`
 ///   (`%APPDATA%\WRouter\logs` / `~/Library/Application Support/WRouter/logs`);
 /// - Linux 发布态 → 数据目录内 `logs/`(`~/.wrouter/logs`,与 systemd 数据同根)。
@@ -245,17 +236,6 @@ pub fn log_dir(settings: &Settings) -> PathBuf {
 }
 
 fn resolve_log_dir(data_dir: &Path) -> PathBuf {
-    if cfg!(debug_assertions) {
-        if let Some(dev_dir) = dev_data_dir()
-            && data_dir == dev_dir
-        {
-            return dev_dir
-                .parent()
-                .and_then(Path::parent)
-                .map(|root| root.join("logs"))
-                .unwrap_or_else(|| dev_dir.join("logs"));
-        }
-    }
     if cfg!(any(target_os = "windows", target_os = "macos")) {
         data_dir
             .parent()
@@ -268,8 +248,7 @@ fn resolve_log_dir(data_dir: &Path) -> PathBuf {
 
 /// 发布态数据目录(与 Electron 壳等价的路径约定)。
 ///
-/// 独立成函数是为了让单测能在 **debug 构建**下直接断言「发布态路径算法」,
-/// 而不必依赖 `cfg!(debug_assertions)` 的分支结果。
+/// 独立成函数便于单测直接断言路径算法。
 fn production_data_dir() -> PathBuf {
     #[cfg(target_os = "windows")]
     {
@@ -295,33 +274,6 @@ fn production_data_dir() -> PathBuf {
     }
 }
 
-/// 开发态数据目录:`<repo_root>/.dev/user-data/data`。
-///
-/// **为什么需要它**(20261102_01 P7 修复):
-/// Electron 时代由 `electron/src/dev-paths.ts` 负责把 dev 的 userData /
-/// 数据目录重定向进仓库(P5 Electron 退场时该文件随 `electron/` 一起删除)。
-/// 桌面壳补上这一层后,`npm run dev` 才会加载仓库 `.dev/` 里的开发数据
-/// (模型供应商 / API 密钥 / 配置),而不是用户机器上的**生产数据**。
-///
-/// **为什么用 `CARGO_MANIFEST_DIR` 定位仓库根**:
-/// 它是编译期常量 `<repo>/desktop/src-tauri` → 向上两级即仓库根。
-/// 开发构建必然在源码树内编译(发布构建走 `cfg!(debug_assertions)` 的
-/// 另一分支,不会走到这里),因此该路径在 dev 下可靠;不依赖进程 cwd,
-/// `cargo run` 在任意目录执行都指向同一个仓库。
-///
-/// 返回 `None` = 定位不到仓库根 → 调用方回落到生产目录约定(不静默失败)。
-fn dev_data_dir() -> Option<PathBuf> {
-    // CARGO_MANIFEST_DIR = <repo>/desktop/src-tauri
-    let manifest_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-    let repo_root = manifest_dir.parent()?.parent()?;
-    // 兜底校验:仓库根必须同时含 `desktop` 与 `backend` 两个子目录,
-    // 避免路径层级写错时把数据写进某个无关目录。
-    if !repo_root.join("desktop").is_dir() || !repo_root.join("backend").is_dir() {
-        return None;
-    }
-    Some(repo_root.join(".dev").join("user-data").join("data"))
-}
-
 fn home_dir() -> Option<PathBuf> {
     std::env::var_os("USERPROFILE")
         .or_else(|| std::env::var_os("HOME"))
@@ -330,15 +282,12 @@ fn home_dir() -> Option<PathBuf> {
 
 #[cfg(test)]
 mod tests {
-    use super::{default_data_dir, dev_data_dir};
-    use std::path::{Path, PathBuf};
+    use std::path::PathBuf;
 
     /// 发布态(Windows):数据目录必须与 Electron 壳完全一致(`%APPDATA%\WRouter\data`)
     /// —— 双轨并存期两边指向同一个目录,否则用户会看到「配置 / API key 消失」。
     ///
-    /// 注意:debug 构建(`cargo test` 默认)走的是**开发态**分支,
-    /// 所以这条只断言「发布态路径算法」本身 —— 用一个显式的
-    /// `production_data_dir()` 副本断言,避免与 dev 分支混淆。
+    /// 数据目录已不再区分构建类型,这条直接断言运行态路径算法。
     #[test]
     #[cfg(target_os = "windows")]
     fn windows_production_data_dir_matches_electron_convention() {
@@ -361,45 +310,7 @@ mod tests {
         assert_eq!(super::production_data_dir(), expected);
     }
 
-    /// 开发态:数据目录必须落在仓库内 `.dev/user-data/data`
-    /// —— 否则 `npm run dev` 会读写用户机器上的**生产数据**,
-    /// 既加载不到仓库里的开发数据,又把开发产物写进真实数据。
-    #[test]
-    fn dev_data_dir_points_into_repo() {
-        let dir = dev_data_dir().expect("开发构建应能定位仓库根");
-        assert!(dir.ends_with(PathBuf::from(".dev").join("user-data").join("data")), "实际: {dir:?}");
-
-        // 仓库根必须含 desktop/ 与 backend/ → 反推也校验了目录层级。
-        let repo_root = dir
-            .ancestors()
-            .nth(3)
-            .expect(".dev/user-data/data 之上第三层应是仓库根");
-        assert!(repo_root.join("desktop").is_dir(), "仓库根判定失败: {repo_root:?}");
-        assert!(repo_root.join("backend").is_dir(), "仓库根判定失败: {repo_root:?}");
-    }
-
-    /// debug 构建下 `default_data_dir()` 必须走开发态分支。
-    #[test]
-    fn debug_build_uses_dev_data_dir() {
-        if !cfg!(debug_assertions) {
-            return;
-        }
-        assert_eq!(default_data_dir(), dev_data_dir().expect("开发构建应能定位仓库根"));
-    }
-
-    /// 开发态日志目录沿用旧 Electron 约定:`<repo_root>/.dev/logs`。
-    #[test]
-    fn dev_log_dir_matches_electron_convention() {
-        let data = dev_data_dir().expect("开发构建应能定位仓库根");
-        let expected = data
-            .parent()
-            .and_then(Path::parent)
-            .expect("dev data dir 应有两级父目录")
-            .join("logs");
-        assert_eq!(super::resolve_log_dir(&data), expected);
-    }
-
-    /// 发布态日志目录:Windows/macOS 与数据目录同级,Linux 在数据目录内。
+    /// 日志目录:Windows/macOS 与数据目录同级,Linux 在数据目录内。
     #[test]
     fn production_log_dir_matches_platform_convention() {
         let data = super::production_data_dir();

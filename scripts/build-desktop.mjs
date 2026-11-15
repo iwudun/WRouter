@@ -10,7 +10,7 @@
 //   4. 把 NSIS 安装器拷到输出目录并打印体积 / sha256
 //
 // 用法:
-//   node scripts/build-desktop.mjs                # 打包到 build/dist/<时间戳>/win
+//   node scripts/build-desktop.mjs                # 打包到 build/dist/release-v<版本>
 //   node scripts/build-desktop.mjs --out <dir>    # 指定输出目录
 //   node scripts/build-desktop.mjs --no-bundle    # 只出 exe,不打 NSIS 安装包
 
@@ -33,12 +33,6 @@ function run(cmd, args, opts = {}) {
     fail(`command failed (exit ${result.status}): ${cmd} ${args.join(" ")}`);
   }
   return result;
-}
-
-function beijingStamp() {
-  return new Date().toLocaleString("sv-SE", { timeZone: "Asia/Shanghai", hour12: false })
-    .replace(/[-: ]/g, (m) => (m === " " ? "T" : ""))
-    .slice(0, 15);
 }
 
 async function sha256(filePath) {
@@ -103,7 +97,7 @@ async function main() {
   log("running: tauri build --target " + TARGET + (noBundle ? " --no-bundle" : ""));
   run(process.execPath, args, { cwd: desktopDir, env });
 
-  const outDir = resolve(projectRoot, outDirArg || join("build", "dist", beijingStamp(), "win"));
+  const outDir = resolve(projectRoot, outDirArg || join("build", "dist", `release-v${version}`));
   mkdirSync(outDir, { recursive: true });
 
   const bundleNsisDir = join(

@@ -5,7 +5,7 @@
 // 20261102_01 P5-5:Windows 侧改由 **Tauri v2** 出包(原先 electron-builder),
 // Linux 侧仍是 rpmbuild(容器内)。两条链的共同点:
 //   - 都不再需要 Electron runtime / 缓存目录;
-//   - 都以「单次构建 → build/dist/<时间戳>/<平台>/」的方式归档产物。
+//   - 都以「单次构建 → build/dist/release-v<版本>/」的方式归档产物。
 //
 // Usage:
 //   node scripts/build.mjs --win                 # Windows NSIS .exe (unsigned)
@@ -26,7 +26,7 @@
 //   - Linux builds require Docker with the wrouter-linux-builder:v2 image.
 
 import { spawnSync } from "node:child_process";
-import { existsSync, mkdirSync, readdirSync, statSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { createReadStream } from "node:fs";
 import { join, resolve } from "node:path";
@@ -38,12 +38,9 @@ const isWindows = platform() === "win32";
 const log = (m) => console.log(`[build] ${m}`);
 const fail = (m) => { console.error(`[build] ERROR: ${m}`); process.exit(1); };
 
-// Build timestamp in Beijing time (UTC+8), formatted YYYYMMDDTHHMMSS.
-// toISOString() returns UTC which is 8h behind and confuses local users.
-function beijingStamp() {
-  return new Date().toLocaleString("sv-SE", { timeZone: "Asia/Shanghai", hour12: false })
-    .replace(/[-: ]/g, m => m === " " ? "T" : "")
-    .slice(0, 15);
+// 产物目录名:`release-v<版本>`。版本唯一来源是根 package.json(与 WR_VERSION 同源)。
+function readReleaseVersion() {
+  return JSON.parse(readFileSync(join(projectRoot, "package.json"), "utf-8")).version;
 }
 
 function run(cmd, args, opts = {}) {
@@ -153,14 +150,13 @@ function checkEnv() {
 // ---------------------------------------------------------------------------
 // Windows build (.exe NSIS —— 20261102_01 P5-5 起由 Tauri 产出)
 // ---------------------------------------------------------------------------
-async function buildWindows(stamp) {
+async function buildWindows(releaseDir) {
   console.log("\n=== Windows Tauri NSIS build ===");
   checkEnv();
 
-  // Output to build/dist/<stamp>/win/ -- fresh dir per run groups all
-  // artifacts of one build under a single timestamp directory.
-  const outDir = join("build", "dist", stamp, "win");
-  mkdirSync(join(projectRoot, "build", "dist", stamp), { recursive: true });
+  // 产物统一归档到 build/dist/release-v<版本>/,不再按时间戳与平台分目录。
+  const outDir = join("build", "dist", releaseDir);
+  mkdirSync(join(projectRoot, outDir), { recursive: true });
   log(`output directory: ${outDir}`);
 
   // 1. icons (build/icons/ + desktop/src-tauri/icons/) + build-info
@@ -182,7 +178,7 @@ async function buildWindows(stamp) {
 // ---------------------------------------------------------------------------
 // Linux build (.rpm and/or .AppImage via Docker)
 // ---------------------------------------------------------------------------
-async function buildLinux(stamp, targets) {
+async function buildLinux(releaseDir, targets) {
   console.log(`\n=== Linux build (${targets.join(" + ")} via Docker) ===`);
 
   // Docker must be running.
@@ -222,19 +218,17 @@ async function buildLinux(stamp, targets) {
 "(see packaging/ for the vendor Dockerfile).");
   }
 
-  // Output to build/dist/<stamp>/linux/ (stamp shared with Windows so a
-  // multi-target run groups both platforms under one timestamp dir).
-  const outDir = join("build", "dist", stamp, "linux");
+  // 与 Windows 共用 build/dist/release-v<版本>/,两个平台的产物落在同一目录。
+  const outDir = join("build", "dist", releaseDir);
   mkdirSync(join(projectRoot, outDir), { recursive: true });
   log(`output directory: ${outDir}`);
 
   // build-linux.sh does the whole Linux build in one container run (host-side
   // musl backend + vite frontend, container-side rpmbuild).
-  // Pass the stamp (a plain string) so build-linux.sh can build the output
-  // path from its own PROJECT_ROOT -- avoids Windows/Unix path conversion
-  // issues when Docker mounts a volume under Git Bash.
+  // 把目录名(纯字符串)传给 build-linux.sh,由它用自己的 PROJECT_ROOT 拼路径,
+  // 避免 Docker 在 Git Bash 下做 Windows/Unix 路径转换。
   log(`starting container build (targets: ${targets.join(", ")})...`);
-  const env = { ...process.env, WROUTER_BUILD_STAMP: stamp, WROUTER_BUILDER_IMAGE: image };
+  const env = { ...process.env, WROUTER_RELEASE_DIR: releaseDir, WROUTER_BUILDER_IMAGE: image };
   const bash = findBash();
   log(`bash: ${bash}`);
   // shell:false -- the absolute Git Bash path may contain spaces, and cmd.exe
@@ -292,10 +286,10 @@ function sha256(filePath) {
 // Run
 // ---------------------------------------------------------------------------
 async function main() {
-  // Single timestamp for the whole run so multi-target builds share one dir.
-  const stamp = beijingStamp();
+  // 同一次构建的多个平台共用一个 release 目录。
+  const releaseDir = `release-v${readReleaseVersion()}`;
   log(`project: ${projectRoot}`);
-  log(`build stamp: ${stamp}`);
+  log(`output dir: build/dist/${releaseDir}`);
   log(`targets: ${[
     TARGET_WIN && "win(.exe)",
     TARGET_LINUX && `linux(${LINUX_TARGETS.join("+")})`,
@@ -305,8 +299,8 @@ async function main() {
   // 版本不同步直接失败, 提示先跑 version:sync (版本唯一手改处是根 package.json).
   run(process.execPath, [resolve(projectRoot, "scripts", "sync-version.mjs"), "--check"]);
 
-  if (TARGET_WIN) await buildWindows(stamp);
-  if (TARGET_LINUX) await buildLinux(stamp, LINUX_TARGETS);
+  if (TARGET_WIN) await buildWindows(releaseDir);
+  if (TARGET_LINUX) await buildLinux(releaseDir, LINUX_TARGETS);
 
   console.log("\n[build] all done.");
 }
