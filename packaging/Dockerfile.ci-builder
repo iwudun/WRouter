@@ -1,0 +1,39 @@
+# =============================================================================
+# 跨项目 Linux 打包镜像（Electron + Rust 通用）
+#
+# 在共享的 wrouter-linux-builder:v2（Rocky 8.10 / rpmbuild / Node / ImageMagick
+# / GUI 依赖栈）之上，补齐 electron-builder 打 deb 缺少的两个工具：
+#   dpkg      —— 组装 .deb 包
+#   fakeroot  —— 非 root 伪造文件属主
+# fuse-libs 让容器内能运行 AppImage 工具链。
+#
+# 用途：
+#   WRouter  → rpm
+#   WCode    → rpm / deb / AppImage（electron-builder）
+#
+# 构建：
+#   docker build -t linux-electron-builder:v2 -f packaging/Dockerfile.ci-builder .
+#
+# 推送（CI 用）：
+#   docker tag  linux-electron-builder:v2 ghcr.io/iwudun/linux-electron-builder:v2
+#   docker push ghcr.io/iwudun/linux-electron-builder:v2
+# =============================================================================
+FROM wrouter-linux-builder:v2
+
+USER root
+
+RUN set -ex && \
+    dnf install -y \
+        https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm && \
+    dnf install -y dpkg dpkg-devel fakeroot fuse-libs && \
+    dnf clean all
+
+# 自检：缺任一工具就让构建失败，避免推出一个打不了 deb 的镜像。
+RUN set -ex && \
+    dpkg --version && \
+    fakeroot --version && \
+    rpmbuild --version && \
+    node --version
+
+WORKDIR /build
+CMD ["echo", "linux-electron-builder v2 ready."]
