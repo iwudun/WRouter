@@ -38,15 +38,19 @@ fi
 IMAGE="${WROUTER_BUILDER_IMAGE:-wrouter-linux-builder:v2}"
 DRY_RUN=false
 
-# 调用方(scripts/build.mjs)可把产物放到 build/dist/release-v<版本>/ ,
-# 与 Windows 产物同目录;不传则落到默认 dist/。
+# 产物目录:调用方(scripts/build.mjs)传目录名,单独调用时按根 package.json
+# 的版本兜底 —— 两条路径都落在 build/dist/ 下,**不再生成仓库根的裸 dist/**
+# (此前 Docker 挂载不存在的宿主路径时会自动创建空目录,留下无用残留)。
 # build.mjs 只传目录名(纯字符串,不含路径),避免 Docker 卷在 Git Bash 下
 # 做 Windows/Unix 路径转换。
 if [ -n "${WROUTER_RELEASE_DIR:-}" ]; then
-  DIST_DIR="$PROJECT_ROOT/build/dist/$WROUTER_RELEASE_DIR"
+  RELEASE_DIR="$WROUTER_RELEASE_DIR"
 else
-  DIST_DIR="$PROJECT_ROOT/dist"
+  # 纯 sed 解析,不依赖 node —— Windows node 读不到 WSL 风格的 /mnt/... 路径。
+  VERSION="$(sed -n 's/^[[:space:]]*"version"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' "$PROJECT_ROOT/package.json" | head -1)"
+  RELEASE_DIR="release-v${VERSION:-0.0.0}"
 fi
+DIST_DIR="$PROJECT_ROOT/build/dist/$RELEASE_DIR"
 
 # 解析参数
 for arg in "$@"; do
